@@ -1,34 +1,128 @@
 package org.obiba.magma
 
+import org.obiba.magma.ValueLoader.StaticValueLoader
+
 sealed trait ValueType {
 
-    val name: String
+  def getName: String
 
-    def getName: String = name
+  def nullValue: Value
 
-//    def nullValue: Value
+  def valueOf(string: String): Value
 
-    case class TextType(name: String = "text") extends ValueType {
-    }
+  def valueOf(value: Any): Value
 
-    case class BooleanType(name: String = "boolean") extends ValueType
+  def valueOf(valueLoader: ValueLoader): Value
 
-    case class DateType(name: String = "date") extends ValueType
-
-    case class DateTimeType(name: String = "datetime") extends ValueType
-
-    case class LocaleType(name: String = "locale") extends ValueType
-
-    case class DecimalType(name: String = "decimal") extends ValueType
-
-    case class IntegerType(name: String = "integer") extends ValueType
-
-    case class BinaryType(name: String = "binary") extends ValueType
-
-    case class PointType(name: String = "point") extends ValueType
-
-    case class LineStringType(name: String = "linestring") extends ValueType
-
-    case class PolygonType(name: String = "polygon") extends ValueType
+  def toString(value: Value): String
 
 }
+
+//    def convert(value: Value): Value
+
+abstract class AbstractValueType extends ValueType {
+
+  def nullValue: Value = valueOf(null)
+
+  def toString(value: Value): String = {
+    if (value == null) return null
+    value.getValue match {
+      case Some(v) => v.toString
+      case None => null
+    }
+  }
+
+  def valueOf(valueLoader: ValueLoader): Value = new Value(this, valueLoader)
+
+}
+
+object TextType extends AbstractValueType {
+
+  def getName: String = "text"
+
+  def valueOf(string: String): Value = new Value(this, new StaticValueLoader(string))
+
+  def valueOf(value: Any): Value = {
+    if (value == null) nullValue else valueOf(value.toString)
+  }
+
+}
+
+object BooleanType extends AbstractValueType {
+
+  private val TRUE: Value = new Value(this, new StaticValueLoader(true))
+  private val FALSE: Value = new Value(this, new StaticValueLoader(false))
+
+  def getName: String = "boolean"
+
+  def valueOf(string: String): Value = {
+    if (string == null) nullValue else valueOf(string.toBoolean)
+  }
+
+  def valueOf(value: Any): Value = {
+    if (value == null) return nullValue
+    value match {
+      case b: Boolean => valueOf(b)
+      case _ => valueOf(value.toString)
+    }
+  }
+
+  private def valueOf(value: Boolean): Value = {
+    if (value) TRUE else FALSE
+  }
+}
+
+trait NumberType extends ValueType
+
+object DecimalType extends AbstractValueType with NumberType {
+
+  def getName: String = "decimal"
+
+  def valueOf(string: String): Value = valueOf(string.replaceAll(",", ".").trim.toDouble)
+
+  def valueOf(value: Any): Value = {
+    if (value == null) return nullValue
+    value match {
+      case n: Number => valueOf(n.doubleValue())
+      case _ => valueOf(value.toString)
+    }
+  }
+
+  private def valueOf(value: Double): Value = {
+    new Value(this, new StaticValueLoader(value))
+  }
+}
+
+object IntegerType extends AbstractValueType with NumberType {
+
+  def getName: String = "integer"
+
+  def valueOf(string: String): Value = valueOf(string.replaceAll(",", ".").trim.toInt)
+
+  def valueOf(value: Any): Value = {
+    if (value == null) return nullValue
+    value match {
+      case n: Number => valueOf(n.intValue())
+      case _ => valueOf(value.toString)
+    }
+  }
+
+  private def valueOf(value: Int): Value = {
+    new Value(this, new StaticValueLoader(value))
+  }
+}
+
+//
+//    case class DateType(name: String = "date") extends ValueType
+//
+//    case class DateTimeType(name: String = "datetime") extends ValueType
+//
+//    case class LocaleType(name: String = "locale") extends ValueType
+//
+//    case class BinaryType(name: String = "binary") extends ValueType
+//
+//    case class PointType(name: String = "point") extends ValueType
+//
+//    case class LineStringType(name: String = "linestring") extends ValueType
+//
+//    case class PolygonType(name: String = "polygon") extends ValueType
