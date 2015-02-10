@@ -6,7 +6,10 @@ sealed trait ValueType {
 
     def getName: String = name
 
-    case class TextType(name: String = "text") extends ValueType
+//    def nullValue: Value
+
+    case class TextType(name: String = "text") extends ValueType {
+    }
 
     case class BooleanType(name: String = "boolean") extends ValueType
 

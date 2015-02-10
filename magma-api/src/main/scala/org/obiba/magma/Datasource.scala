@@ -1,6 +1,5 @@
 package org.obiba.magma
 
-
 trait Datasource {
 
     def getName: String

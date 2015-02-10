@@ -2,19 +2,13 @@ package org.obiba.magma
 
 import java.util.Locale
 
-import org.obiba.magma.ValueType
-
 trait Attribute {
-
-    def getNamespace: String
-
-    def hasNamespace: Boolean
 
     def getName: String
 
-    def getLocale: Locale
+    def getNamespace: Option[String]
 
-    def isLocalised: Boolean
+    def getLocale: Option[Locale]
 
     def getValueType: ValueType
 
