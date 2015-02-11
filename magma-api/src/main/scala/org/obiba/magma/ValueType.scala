@@ -16,6 +16,10 @@ sealed trait ValueType {
 
   def toString(value: Value): String
 
+  def nullSequence: ValueSequence
+
+  def sequenceOf(values: Traversable[Value]): ValueSequence
+
 }
 
 //    def convert(value: Value): Value
@@ -23,6 +27,8 @@ sealed trait ValueType {
 abstract class AbstractValueType extends ValueType {
 
   def nullValue: Value = valueOf(null)
+
+  def nullSequence: ValueSequence = sequenceOf(null)
 
   def toString(value: Value): String = {
     if (value == null) return null
@@ -32,7 +38,9 @@ abstract class AbstractValueType extends ValueType {
     }
   }
 
-  def valueOf(valueLoader: ValueLoader): Value = new Value(this, valueLoader)
+  def valueOf(valueLoader: ValueLoader): Value = Value(this, valueLoader)
+
+  def sequenceOf(values: Traversable[Value]): ValueSequence = new ValueSequence(this, values)
 
 }
 
@@ -40,7 +48,7 @@ object TextType extends AbstractValueType {
 
   def getName: String = "text"
 
-  def valueOf(string: String): Value = new Value(this, new StaticValueLoader(string))
+  def valueOf(string: String): Value = Value(this, new StaticValueLoader(string))
 
   def valueOf(value: Any): Value = {
     if (value == null) nullValue else valueOf(value.toString)
@@ -50,8 +58,8 @@ object TextType extends AbstractValueType {
 
 object BooleanType extends AbstractValueType {
 
-  private val TRUE: Value = new Value(this, new StaticValueLoader(true))
-  private val FALSE: Value = new Value(this, new StaticValueLoader(false))
+  private val TRUE: Value = Value(this, new StaticValueLoader(true))
+  private val FALSE: Value = Value(this, new StaticValueLoader(false))
 
   def getName: String = "boolean"
 
@@ -89,7 +97,7 @@ object DecimalType extends AbstractValueType with NumberType {
   }
 
   private def valueOf(value: Double): Value = {
-    new Value(this, new StaticValueLoader(value))
+    Value(this, new StaticValueLoader(value))
   }
 }
 
@@ -108,7 +116,7 @@ object IntegerType extends AbstractValueType with NumberType {
   }
 
   private def valueOf(value: Int): Value = {
-    new Value(this, new StaticValueLoader(value))
+    Value(this, new StaticValueLoader(value))
   }
 }
 

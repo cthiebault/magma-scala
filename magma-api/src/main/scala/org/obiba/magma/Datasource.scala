@@ -1,6 +1,6 @@
 package org.obiba.magma
 
-trait Datasource {
+trait Datasource extends AttributeWriter {
 
   def getName: String
 
@@ -28,5 +28,8 @@ trait Datasource {
 
   def createWriter(tableName: String, entityType: String): ValueTableWriter
 
-  def setAttributeValue(name: String, value: Nothing)
+}
+
+abstract class AbstractDatasource extends Datasource {
+
 }

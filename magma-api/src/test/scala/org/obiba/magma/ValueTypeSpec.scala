@@ -4,10 +4,7 @@ import org.scalatest._
 
 class ValueTypeSpec extends FlatSpec with Matchers {
 
-  "A TextType value" should "be equals to same TextType value" in {
-    TextType.valueOf("test") should be(TextType.valueOf("test"))
-  }
-  it should "have text name" in {
+  "A TextType" should "be named" in {
     TextType.getName should be("text")
   }
   it should "have value for non null param" in {
@@ -17,7 +14,7 @@ class ValueTypeSpec extends FlatSpec with Matchers {
     TextType.valueOf(null).getValue should be(None)
   }
   it should "be equals to toString()" in {
-    TextType.valueOf(1).getValue should be(Some("1"))
+    TextType.valueOf(1).getValue.get should be("1")
   }
   it should "be equals to same TextType value build without String param" in {
     TextType.valueOf(1) should be(TextType.valueOf("1"))

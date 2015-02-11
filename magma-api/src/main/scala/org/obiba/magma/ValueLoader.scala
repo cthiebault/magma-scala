@@ -18,7 +18,7 @@ object ValueLoader {
 
   class StaticValueLoader(value: Any) extends ValueLoader {
 
-    val option: Option[Any] = Option.apply(value)
+    val option: Option[Any] = if (value == null) None else Some(value)
 
     def getLength: Long = {
       option match {
