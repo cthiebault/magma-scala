@@ -42,6 +42,12 @@ trait AttributeAware {
 
 trait AttributeWriter extends AttributeAware {
 
-  def attributeValue(name: String, namespace: String = null, locale: Locale = null, value: Value): Unit
+  def addAttribute(attribute: Attribute): Unit
+
+  def removeAttributes(name: String): Unit
+
+  def removeAttributes(name: String, namespace: String): Unit
+
+  def removeAttribute(name: String, namespace: String, locale: Locale): Unit
 
 }

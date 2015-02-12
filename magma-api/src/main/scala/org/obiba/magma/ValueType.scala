@@ -4,7 +4,7 @@ import org.obiba.magma.ValueLoader.StaticValueLoader
 
 sealed trait ValueType {
 
-  def getName: String
+  def name: String
 
   def nullValue: Value
 
@@ -32,7 +32,7 @@ abstract class AbstractValueType extends ValueType {
 
   def toString(value: Value): String = {
     if (value == null) return null
-    value.getValue match {
+    value.value match {
       case Some(v) => v.toString
       case None => null
     }
@@ -46,7 +46,7 @@ abstract class AbstractValueType extends ValueType {
 
 object TextType extends AbstractValueType {
 
-  def getName: String = "text"
+  def name: String = "text"
 
   def valueOf(string: String): Value = Value(this, new StaticValueLoader(string))
 
@@ -61,7 +61,7 @@ object BooleanType extends AbstractValueType {
   private val TRUE: Value = Value(this, new StaticValueLoader(true))
   private val FALSE: Value = Value(this, new StaticValueLoader(false))
 
-  def getName: String = "boolean"
+  def name: String = "boolean"
 
   def valueOf(string: String): Value = {
     if (string == null) nullValue else valueOf(string.toBoolean)
@@ -84,7 +84,7 @@ trait NumberType extends ValueType
 
 object DecimalType extends AbstractValueType with NumberType {
 
-  def getName: String = "decimal"
+  def name: String = "decimal"
 
   def valueOf(string: String): Value = valueOf(string.replaceAll(",", ".").trim.toDouble)
 
@@ -103,7 +103,7 @@ object DecimalType extends AbstractValueType with NumberType {
 
 object IntegerType extends AbstractValueType with NumberType {
 
-  def getName: String = "integer"
+  def name: String = "integer"
 
   def valueOf(string: String): Value = valueOf(string.replaceAll(",", ".").trim.toInt)
 

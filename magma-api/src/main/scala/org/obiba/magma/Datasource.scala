@@ -1,18 +1,16 @@
 package org.obiba.magma
 
-trait Datasource extends AttributeWriter {
+trait Datasource extends AttributeWriter with Droppable {
 
-  def getName: String
+  var name: String
 
-  def getType: String
+  def `type`: String
 
-  def hasValueTable(tableName: String): Boolean
+  def tables: Set[ValueTable]
 
-  def hasEntities(predicate: Nothing): Boolean
+  def getTable(tableName: String): Option[ValueTable]
 
-  def getValueTable(tableName: String): Option[ValueTable]
-
-  def getValueTables: Set[ValueTable]
+  def hasTable(tableName: String): Boolean
 
   def canDropTable(tableName: String): Boolean
 
@@ -22,9 +20,7 @@ trait Datasource extends AttributeWriter {
 
   def renameTable(tableName: String, newName: String)
 
-  def drop(): Unit
-
-  def canDrop: Boolean
+  def hasEntities(predicate: ValueTable => Boolean): Boolean
 
   def createWriter(tableName: String, entityType: String): ValueTableWriter
 
@@ -32,4 +28,7 @@ trait Datasource extends AttributeWriter {
 
 abstract class AbstractDatasource extends Datasource {
 
+  override def getTable(tableName: String): Option[ValueTable] = tables.find(t => t.name == name)
+
+  override def hasTable(tableName: String): Boolean = getTable(tableName).isDefined
 }

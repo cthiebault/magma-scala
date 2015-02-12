@@ -1,8 +1,6 @@
 package org.obiba.magma
 
-import java.util.Locale
-import java.util.Locale.{FRENCH, ENGLISH, GERMAN}
-
+import java.util.Locale.{ENGLISH, FRENCH, GERMAN}
 
 class AttributeSpec extends UnitSpec {
 
@@ -34,7 +32,8 @@ class AttributeSpec extends UnitSpec {
     attributeAware.getAttributes("attr1", "namespace") should have size 2
   }
   it should "have an attribute [namespace.attr1.FRENCH]" in {
-    attributeAware.getAttribute("attr1", "namespace", FRENCH).get should be(Attribute("attr1", "namespace", FRENCH, TextType.valueOf("french value 1")))
+    attributeAware.getAttribute("attr1", "namespace", FRENCH).get should
+      be(Attribute("attr1", "namespace", FRENCH, TextType.valueOf("french value 1")))
   }
   it should "have an attribute value [namespace.attr1.FRENCH]" in {
     attributeAware.getAttributeValue("attr1", "namespace", FRENCH).get should be(TextType.valueOf("french value 1"))
@@ -46,20 +45,4 @@ class AttributeSpec extends UnitSpec {
     attributeAware.getAttributeValue("attr1", "namespace", GERMAN) should be(None)
   }
 
-  private class TestAttributeWriter(private var _attributes: List[Attribute] = Nil) extends AttributeWriter {
-
-    override def attributes: List[Attribute] = _attributes
-
-    override def attributeValue(name: String, namespace: String, locale: Locale, value: Value): Unit = {
-      _attributes = _attributes ::: List(Attribute(name, namespace, locale, value))
-    }
-  }
-
-  "An AttributeWriter" should "have attributes after writing" in {
-    val attributeWriter: TestAttributeWriter = new TestAttributeWriter()
-    attributeWriter.attributeValue("attr", "namespace", FRENCH, TextType.valueOf("french value 1"))
-
-    attributeWriter.attributes should have size 1
-    attributeWriter.getAttributeValue("attr", "namespace", FRENCH).get should be(TextType.valueOf("french value 1"))
-  }
 }

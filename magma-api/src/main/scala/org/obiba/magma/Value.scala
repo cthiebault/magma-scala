@@ -2,9 +2,9 @@ package org.obiba.magma
 
 class Value(val valueType: ValueType, private val valueLoader: ValueLoader) {
 
-  def isNull: Boolean = getValue.isEmpty
+  def isNull: Boolean = value.isEmpty
 
-  def getLength: Long = {
+  def length: Long = {
     try {
       if (isNull) 0 else valueLoader.getLength
     }
@@ -17,7 +17,7 @@ class Value(val valueType: ValueType, private val valueLoader: ValueLoader) {
     }
   }
 
-  def getValue: Option[Any] = {
+  def value: Option[Any] = {
     if (valueLoader == null) None else valueLoader.getValue
   }
 
@@ -53,23 +53,23 @@ class ValueSequence(valueType: ValueType, valueLoader: ValueLoader) extends Valu
 
   def this(valueType: ValueType, value: Traversable[Value]) = this(valueType, new ValueLoader.StaticValueLoader(value))
 
-  override def getValue: Option[List[Value]] = {
-    super.getValue.asInstanceOf[Option[List[Value]]]
+  override def value: Option[List[Value]] = {
+    super.value.asInstanceOf[Option[List[Value]]]
   }
 
-  def getValues: List[Value] = getValue.getOrElse(List())
+  def values: List[Value] = value.getOrElse(List())
 
-  def getSize: Int = {
-    getValue match {
+  def size: Int = {
+    value match {
       case Some(list) => list.size
       case None => 0
     }
   }
 
-  override def getLength: Long = {
-    getValue
+  override def length: Long = {
+    value
         .getOrElse(List())
-        .foldLeft(0l) { (total, value) => total + value.getLength}
+        .foldLeft(0l) { (total, value) => total + value.length}
   }
 }
 

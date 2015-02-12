@@ -7,10 +7,10 @@ class ValueSpec extends UnitSpec {
     TextType.valueOf("test") should be(TextType.valueOf("test"))
   }
   it should "have the right length for non null value" in {
-    TextType.valueOf("test").getLength should be(4)
+    TextType.valueOf("test").length should be(4)
   }
   it should "have 0 length for null value" in {
-    TextType.nullValue.getLength should be(0)
+    TextType.nullValue.length should be(0)
   }
 
   "A null ValueSequence" should "be equals to other null ValueSequence" in {
@@ -22,10 +22,10 @@ class ValueSpec extends UnitSpec {
         be(TextType.sequenceOf(List(TextType.valueOf("foo"), TextType.valueOf("bar"))))
   }
   it should "have size 2" in {
-    TextType.sequenceOf(List(TextType.valueOf("foo"), TextType.valueOf("bar"))).getSize should be(2)
+    TextType.sequenceOf(List(TextType.valueOf("foo"), TextType.valueOf("bar"))).size should be(2)
   }
   it should "have length 6" in {
-    TextType.sequenceOf(List(TextType.valueOf("foo"), TextType.valueOf("bar"))).getLength should be(6)
+    TextType.sequenceOf(List(TextType.valueOf("foo"), TextType.valueOf("bar"))).length should be(6)
   }
 
 }
