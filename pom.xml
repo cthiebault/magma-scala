@@ -33,18 +33,6 @@
       <version>2.2.4</version>
       <scope>test</scope>
     </dependency>
-    <!--<dependency>-->
-    <!--<groupId>junit</groupId>-->
-    <!--<artifactId>junit</artifactId>-->
-    <!--<version>4.11</version>-->
-    <!--<scope>test</scope>-->
-    <!--</dependency>-->
-    <!--<dependency>-->
-    <!--<groupId>org.specs2</groupId>-->
-    <!--<artifactId>specs2_${scala.tools.version}</artifactId>-->
-    <!--<version>2.4.16</version>-->
-    <!--<scope>test</scope>-->
-    <!--</dependency>-->
   </dependencies>
 
   <build>
@@ -56,6 +44,13 @@
         <artifactId>scala-maven-plugin</artifactId>
         <version>3.2.0</version>
         <executions>
+          <execution>
+            <id>scala-compile</id>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>compile</goal>
+            </goals>
+          </execution>
           <execution>
             <id>scala-test-compile</id>
             <phase>process-test-resources</phase>
@@ -73,9 +68,10 @@
           <useFile>false</useFile>
           <disableXmlReport>true</disableXmlReport>
           <!-- If you have classpath issue like NoDefClassError,... -->
-          <!-- useManifestOnlyJar>false</useManifestOnlyJar -->
+          <!--<useManifestOnlyJar>false</useManifestOnlyJar>-->
           <includes>
             <include>**/*Test.*</include>
+            <include>**/*Spec.*</include>
             <include>**/*Suite.*</include>
           </includes>
         </configuration>
