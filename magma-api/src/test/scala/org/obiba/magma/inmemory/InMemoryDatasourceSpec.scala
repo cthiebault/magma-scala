@@ -4,6 +4,7 @@ import java.util.Locale.{ENGLISH, FRENCH}
 
 import org.obiba.magma.UnitSpec
 import org.obiba.magma.attribute._
+import org.obiba.magma.static.InMemoryDatasource
 import org.obiba.magma.value.TextType
 
 class InMemoryDatasourceSpec extends UnitSpec {

@@ -1,4 +1,4 @@
-package org.obiba.magma.inmemory
+package org.obiba.magma.static
 
 import org.obiba.magma._
 

@@ -79,7 +79,6 @@ abstract class AbstractValueTable(val name: String, val datasource: Datasource, 
         .map(getValueSet(_).get)
   }
 
-
   override def variables: Traversable[Variable] = {
     variableSources
         .values
@@ -145,6 +144,5 @@ abstract class AbstractValueTable(val name: String, val datasource: Datasource, 
     val state = Seq(name, datasource)
     state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
   }
-  
-  
+
 }
