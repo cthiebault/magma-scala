@@ -48,17 +48,7 @@ trait ListAttributeAware extends AttributeAware {
 
   override def attributes: List[Attribute] = _attributes
 
-  def addAttribute(attribute: Attribute): Unit = {
-    val index = indexOf(attribute)
-    _attributes = if (index == -1) _attributes :+ attribute else _attributes.updated(index, attribute)
-  }
-
-  private def indexOf(attribute: Attribute): Int = {
-    _attributes.indexWhere(a => a.name == attribute.name && a.namespace == attribute.namespace && a.locale == attribute.locale)
-  }
-
 }
-
 
 trait AttributeWriter extends AttributeAware {
 
@@ -74,8 +64,16 @@ trait AttributeWriter extends AttributeAware {
 
 }
 
-
 trait ListAttributeWriter extends ListAttributeAware with AttributeWriter {
+
+  def addAttribute(attribute: Attribute): Unit = {
+    val index = indexOf(attribute)
+    _attributes = if (index == -1) _attributes :+ attribute else _attributes.updated(index, attribute)
+  }
+
+  private def indexOf(attribute: Attribute): Int = {
+    _attributes.indexWhere(a => a.name == attribute.name && a.namespace == attribute.namespace && a.locale == attribute.locale)
+  }
 
   override def removeAttributes(name: String): Unit = {
     _attributes = _attributes.filterNot {
