@@ -1,15 +1,15 @@
-package org.obiba.magma.inmemory
+package org.obiba.magma.static
 
 import java.util.Locale.{ENGLISH, FRENCH}
 
 import org.obiba.magma.UnitSpec
 import org.obiba.magma.attribute._
-import org.obiba.magma.static.InMemoryDatasource
+import org.obiba.magma.static.StaticDatasource
 import org.obiba.magma.value.TextType
 
 class InMemoryDatasourceSpec extends UnitSpec {
 
-  val emptyDs = new InMemoryDatasource("empty")
+  val emptyDs = new StaticDatasource("empty")
   "An empty InMemory Datasource" should "have no attributes" in {
     emptyDs.hasAttributes should be(false)
     emptyDs.attributes should be(empty)
@@ -24,11 +24,11 @@ class InMemoryDatasourceSpec extends UnitSpec {
   }
 
   it should "be droppable" in {
-    new InMemoryDatasource("test").canDrop should be(true)
+    new StaticDatasource("test").canDrop should be(true)
   }
 
   it should "be empty after drop" in {
-    val ds = new InMemoryDatasource("test")
+    val ds = new StaticDatasource("test")
     ds.addAttribute(Attribute("attr", "namespace", FRENCH, TextType.valueOf("french value")))
     ds.addAttribute(Attribute("attr", "namespace", ENGLISH, TextType.valueOf("english value")))
     ds.drop()

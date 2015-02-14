@@ -3,7 +3,7 @@ package org.obiba.magma.static
 import org.obiba.magma._
 import org.obiba.magma.attribute.ListAttributeWriter
 
-class InMemoryDatasource(override var name: String) extends AbstractDatasource with ListAttributeWriter {
+class StaticDatasource(override var name: String) extends AbstractDatasource with ListAttributeWriter {
 
   private var _tables: Map[String, ValueTable] = Map()
 
