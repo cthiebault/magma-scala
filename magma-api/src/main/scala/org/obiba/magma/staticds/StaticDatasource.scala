@@ -7,7 +7,7 @@ class StaticDatasource(override var name: String) extends AbstractDatasource wit
 
   private var _tables: Map[String, ValueTable] = Map()
 
-  override def `type`: String = "in-memory"
+  override def `type`: String = "static"
 
   override def tables: Set[ValueTable] = _tables.values.toSet
 

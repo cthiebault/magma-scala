@@ -11,7 +11,7 @@ class StaticDatasourceSpec extends UnitSpec {
     new StaticDatasource("empty").tables should be(empty)
   }
 
-  "A static Datasource" should "have staticds type" in {
+  "A static Datasource" should "have static type" in {
     new StaticDatasource("empty").`type` should be("static")
   }
 

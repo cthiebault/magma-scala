@@ -1,31 +1,34 @@
 package org.obiba.magma.staticds
 
-import org.obiba.magma.UnitSpec
-import org.obiba.magma.attribute._
+import org.obiba.magma.{EntityBean, UnitSpec}
 import org.obiba.magma.static.StaticDatasource
-import org.obiba.magma.value.TextType
 
 class StaticValueTableSpec extends UnitSpec {
 
-  "An empty static Datasource" should "have no tables" in {
-    new StaticDatasource("empty").tables should be(empty)
+  val ds = new StaticDatasource("ds")
+
+  val emptyTable = StaticValueTable("table", ds, "Participant", Set())
+
+  "An empty static ValueTable" should "have default config" in {
+    emptyTable.name should be("table")
+    emptyTable.datasource should be(ds)
+    emptyTable.entityType should be("Participant")
+    emptyTable.canDrop should be(true)
+    emptyTable.canDropValueSets should be(false)
+    emptyTable.isView should be(false)
   }
-
-  "A staticds Datasource" should "have staticds type" in {
-    new StaticDatasource("empty").`type` should be("staticds")
+  it should "have no variable" in {
+    emptyTable.variables should be(empty)
+    emptyTable.variableCount should be(0)
+    emptyTable.hasVariable("none") should be(false)
   }
-
-  it should "be droppable" in {
-    new StaticDatasource("test").canDrop should be(true)
+  it should "have no value sets" in {
+    emptyTable.valueSets should be(empty)
+    emptyTable.valueSetCount should be(0)
+    emptyTable.hasValueSet(new EntityBean("Participant", "1")) should be(false)
   }
-
-  it should "be empty after drop" in {
-    val ds = new StaticDatasource("test")
-    ds.addAttribute(Attribute("attr", TextType.valueOf("french value")))
-    ds.drop()
-
-    ds.attributes should be(empty)
-    ds.tables should be(empty)
+  it should "have no entities" in {
+    emptyTable.entities should be(empty)
+    emptyTable.entityCount should be(0)
   }
-
 }

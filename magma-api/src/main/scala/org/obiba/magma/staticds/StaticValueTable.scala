@@ -2,7 +2,7 @@ package org.obiba.magma.staticds
 
 import org.obiba.magma._
 
-class StaticValueTable(var name: String, val datasource: Datasource, val valueType: String, private val entityProvider: EntityProvider)
+class StaticValueTable(var name: String, val datasource: Datasource, override val entityType: String, private val entityProvider: EntityProvider)
     extends AbstractValueTable(entityProvider) {
 
   override def canDrop: Boolean = true
@@ -24,8 +24,8 @@ class StaticValueTable(var name: String, val datasource: Datasource, val valueTy
 }
 
 object StaticValueTable {
-  def apply(name: String, datasource: Datasource, valueType: String, entityType: String, entitiesSet: Set[Entity]): StaticValueTable = {
-    new StaticValueTable(name, datasource, valueType, new AbstractEntityProvider(entityType) {
+  def apply(name: String, datasource: Datasource, entityType: String, entitiesSet: Set[Entity]): StaticValueTable = {
+    new StaticValueTable(name, datasource, entityType, new AbstractEntityProvider(entityType) {
       override def entities: Set[Entity] = entitiesSet
     })
   }

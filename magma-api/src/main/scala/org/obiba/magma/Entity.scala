@@ -8,6 +8,8 @@ trait Entity {
 
 }
 
+case class EntityBean(`type`: String, identifier: String) extends Entity
+
 trait EntityProvider {
 
   def entityType: String
