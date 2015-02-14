@@ -2,7 +2,9 @@ package org.obiba.magma.inmemory
 
 import java.util.Locale.{ENGLISH, FRENCH, GERMAN}
 
-import org.obiba.magma.{Attribute, TextType, UnitSpec}
+import org.obiba.magma.UnitSpec
+import org.obiba.magma.attribute._
+import org.obiba.magma.value.TextType
 
 class InMemoryDatasourceSpec extends UnitSpec {
 

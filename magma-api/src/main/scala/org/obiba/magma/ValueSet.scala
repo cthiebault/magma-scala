@@ -1,6 +1,6 @@
 package org.obiba.magma
 
-trait ValueSet {
+trait ValueSet extends Timestamped {
 
   def valueTable: ValueTable
 

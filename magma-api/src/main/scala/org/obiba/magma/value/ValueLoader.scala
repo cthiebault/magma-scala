@@ -1,4 +1,4 @@
-package org.obiba.magma
+package org.obiba.magma.value
 
 trait ValueLoader {
 

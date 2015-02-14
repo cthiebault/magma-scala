@@ -1,5 +1,7 @@
 package org.obiba.magma
 
+import org.obiba.magma.attribute.AttributeWriter
+
 trait Datasource extends AttributeWriter with Droppable {
 
   var name: String

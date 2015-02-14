@@ -1,4 +1,4 @@
-package org.obiba.magma
+package org.obiba.magma.value
 
 class Value(val valueType: ValueType, private val valueLoader: ValueLoader) {
 

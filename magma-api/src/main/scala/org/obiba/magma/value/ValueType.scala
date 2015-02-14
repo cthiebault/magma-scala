@@ -1,6 +1,6 @@
-package org.obiba.magma
+package org.obiba.magma.value
 
-import org.obiba.magma.ValueLoader.StaticValueLoader
+import org.obiba.magma.value.ValueLoader.StaticValueLoader
 
 sealed trait ValueType {
 

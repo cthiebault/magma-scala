@@ -1,6 +1,9 @@
-package org.obiba.magma
+package org.obiba.magma.attribute
 
 import java.util.Locale.{ENGLISH, FRENCH, GERMAN}
+
+import org.obiba.magma.UnitSpec
+import org.obiba.magma.value._
 
 class AttributeSpec extends UnitSpec {
 

@@ -1,13 +1,11 @@
 package org.obiba.magma.inmemory
 
-import java.util.Locale
-
 import org.obiba.magma._
+import org.obiba.magma.attribute.ListAttributeWriter
 
-class InMemoryDatasource(override var name: String) extends AbstractDatasource {
+class InMemoryDatasource(override var name: String) extends AbstractDatasource with ListAttributeWriter {
 
   private var _tables: Map[String, ValueTable] = Map()
-  private var _attributes: List[Attribute] = List()
 
   override def `type`: String = "in-memory"
 
@@ -27,7 +25,7 @@ class InMemoryDatasource(override var name: String) extends AbstractDatasource {
 
   override def drop(): Unit = {
     _tables = Map()
-    _attributes = List()
+    clearAttributes()
   }
 
   override def canRenameTable(tableName: String): Boolean = hasTable(tableName)
@@ -38,37 +36,7 @@ class InMemoryDatasource(override var name: String) extends AbstractDatasource {
     _tables = _tables + (newName -> table)
   }
 
-  override def attributes: List[Attribute] = _attributes
-
-  def addAttribute(attribute: Attribute): Unit = {
-    val index = indexOf(attribute)
-    _attributes = if (index == -1) _attributes :+ attribute else _attributes.updated(index, attribute)
-  }
-
-  private def indexOf(attribute: Attribute): Int = {
-    _attributes.indexWhere(a => a.name == attribute.name && a.namespace == attribute.namespace && a.locale == attribute.locale)
-  }
-
-  override def removeAttributes(name: String): Unit = {
-    _attributes = _attributes.filterNot {
-      case Attribute(`name`, _, _, _) => true
-      case _ => false
-    }
-  }
-
-  override def removeAttributes(name: String, namespace: String): Unit = {
-    _attributes = _attributes.filterNot {
-      case Attribute(`name`, Some(`namespace`), _, _) => true
-      case _ => false
-    }
-  }
-
-  override def removeAttribute(name: String, namespace: String, locale: Locale): Unit = {
-    _attributes = _attributes.filterNot {
-      case Attribute(`name`, Some(`namespace`), Some(`locale`), _) => true
-      case _ => false
-    }
-  }
+ 
 
   override def hasEntities(predicate: ValueTable => Boolean): Boolean = ???
 

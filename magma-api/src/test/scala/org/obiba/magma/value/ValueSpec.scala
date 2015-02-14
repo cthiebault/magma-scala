@@ -1,4 +1,6 @@
-package org.obiba.magma
+package org.obiba.magma.value
+
+import org.obiba.magma.UnitSpec
 
 
 class ValueSpec extends UnitSpec {
