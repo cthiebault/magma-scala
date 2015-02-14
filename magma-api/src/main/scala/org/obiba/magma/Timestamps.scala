@@ -15,3 +15,10 @@ trait Timestamped {
   def timestamps: Timestamps
 
 }
+
+object NullTimestamps extends Timestamps {
+  
+  override def created: Value = ???
+
+  override def lastUpdate: Value = ???
+}

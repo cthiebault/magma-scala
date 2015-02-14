@@ -5,7 +5,7 @@ import org.obiba.magma.value.Value
 import scala.collection.SortedSet
 import scala.collection.immutable.ListMap
 
-trait ValueTable extends Droppable {
+trait ValueTable extends Droppable with Timestamped {
 
   var name: String
 
@@ -59,7 +59,7 @@ trait ValueTable extends Droppable {
 
 }
 
-abstract class AbstractValueTable(val name: String, val datasource: Datasource, private val entityProvider: EntityProvider)
+abstract class AbstractValueTable(private val entityProvider: EntityProvider)
     extends ValueTable with Initialisable {
 
   private val variableSources: Map[String, VariableValueSource] = ListMap()

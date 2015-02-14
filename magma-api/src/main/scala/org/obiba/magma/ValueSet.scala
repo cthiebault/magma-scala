@@ -7,3 +7,7 @@ trait ValueSet extends Timestamped {
   def entity: Entity
 
 }
+
+case class ValueSetBean(valueTable: ValueTable, entity: Entity) extends ValueSet {
+  override def timestamps: Timestamps = valueTable.timestamps
+}
