@@ -7,3 +7,19 @@ trait Entity {
   val identifier: String
 
 }
+
+trait EntityProvider {
+
+  def entityType: String
+
+  def isForEntityType(entityType: String): Boolean
+
+  def entities: Set[Entity]
+
+}
+
+abstract class AbstractEntityProvider(val entityType: String) extends EntityProvider {
+
+  override def isForEntityType(entityType: String): Boolean = entityType == this.entityType
+
+}

@@ -31,3 +31,21 @@ trait VariableValueSource extends ValueSource {
 
   def variable: Variable
 }
+
+trait VariableValueSourceFactory {
+  def createSources: Set[VariableValueSource]
+}
+
+trait ValueSourceWriter extends ValueSource {
+
+  def addVariableValueSources(factory: VariableValueSourceFactory): Unit
+
+  def addVariableValueSources(sources: Traversable[VariableValueSource]): Unit
+
+  def addVariableValueSource(source: VariableValueSource): Unit
+
+  def removeVariableValueSource(variableName: String): Unit
+
+  def removeVariableValueSources(sources: Iterable[VariableValueSource]): Unit
+
+}

@@ -36,11 +36,10 @@ class InMemoryDatasource(override var name: String) extends AbstractDatasource w
     _tables = _tables + (newName -> table)
   }
 
- 
-
   override def hasEntities(predicate: ValueTable => Boolean): Boolean = ???
 
   override def createWriter(tableName: String, entityType: String): ValueTableWriter = ???
 
+  override def initialise(): Unit = ???
 }
 
