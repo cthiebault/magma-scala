@@ -2,6 +2,8 @@ package org.obiba.magma.static
 
 import org.obiba.magma._
 import org.obiba.magma.attribute.ListAttributeWriter
+import org.obiba.magma.staticds.StaticValueTable
+import org.obiba.magma.value.Value
 
 class StaticDatasource(override var name: String) extends AbstractDatasource with ListAttributeWriter {
 
@@ -40,6 +42,40 @@ class StaticDatasource(override var name: String) extends AbstractDatasource wit
 
   override def createWriter(tableName: String, entityType: String): ValueTableWriter = ???
 
-  override def initialise(): Unit = ???
+  override def initialise(): Unit = {}
+
+  private class StaticValueTableWriter(val table: StaticValueTable) extends ValueTableWriter {
+
+    override def writeVariables: VariableWriter = {
+      new VariableWriter {
+        override def writeVariable(variable: Variable): Unit = table.addVariable(variable)
+
+        override def removeVariable(variable: Variable): Unit = table.removeVariable(variable.name)
+
+        override def close(): Unit = {}
+      }
+    }
+
+    override def writeValueSet(entity: Entity): ValueSetWriter = {
+      if (!table.hasEntity(entity)) {
+        table.addEntity(entity)
+      }
+      new ValueSetWriter {
+        override def close(): Unit = {}
+
+        override def writeValue(variable: Variable, value: Value): Unit = {
+          table.addValues(entity.identifier, variable, value)
+        }
+
+        override def remove(): Unit = {
+          table.removeValues(entity.identifier)
+        }
+      }
+    }
+
+    override def close(): Unit = {}
+
+  }
+
 }
 

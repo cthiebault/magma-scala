@@ -17,6 +17,8 @@ trait ValueTable extends Droppable with Timestamped {
 
   def entities: Set[Entity]
 
+  def hasEntity(entity: Entity): Boolean
+
   def entityCount: Int
 
   def hasValueSet(entity: Entity): Boolean
@@ -97,6 +99,9 @@ abstract class AbstractValueTable(private val entityProvider: EntityProvider)
 
   override def getVariableValueSource(name: String): Option[VariableValueSource] = variableSources.get(name)
 
+
+  override def hasEntity(entity: Entity): Boolean = entities.contains(entity)
+
   override def getValue(variable: Variable, valueSet: ValueSet): Option[Value] = {
     getVariableValueSource(variable.name) match {
       case Some(source) => Some(source.getValue(valueSet))
@@ -129,7 +134,7 @@ abstract class AbstractValueTable(private val entityProvider: EntityProvider)
   override def variableCount: Int = variables.size
 
   override def entityCount: Int = entities.size
-  
+
   def canEqual(other: Any): Boolean = other.isInstanceOf[AbstractValueTable]
 
   override def equals(other: Any): Boolean = other match {

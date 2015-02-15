@@ -1,9 +1,20 @@
 package org.obiba.magma.staticds
 
 import org.obiba.magma._
+import org.obiba.magma.value.Value
 
 class StaticValueTable(var name: String, val datasource: Datasource, override val entityType: String, private val entityProvider: EntityProvider)
     extends AbstractValueTable(entityProvider) {
+  
+  def addValues(identifier: String, variable: Variable, value: Value): Unit = ???
+
+  def removeValues(identifier: String): Unit = ???
+
+  def addEntity(entity: Entity) = ???
+
+  def addVariable(variable: Variable): Unit = ???
+
+  def removeVariable(name: String): Unit = ???
 
   override def canDrop: Boolean = true
 
