@@ -9,7 +9,7 @@ class StaticValueTableSpec extends UnitSpec {
 
   val emptyTable = StaticValueTable("table", ds, "Participant", Set())
 
-  "An empty static ValueTable" should "have default config" in {
+  "An empty static ValueTable" should "have default values" in {
     emptyTable.name should be("table")
     emptyTable.datasource should be(ds)
     emptyTable.entityType should be("Participant")
@@ -30,5 +30,12 @@ class StaticValueTableSpec extends UnitSpec {
   it should "have no entities" in {
     emptyTable.entities should be(empty)
     emptyTable.entityCount should be(0)
+    emptyTable.isForEntityType("Participant") should be(true)
   }
+
+//  "A static ValueTable" should "have default values" in {
+//
+//    val table = StaticValueTable("table", ds, "Participant", Set())
+//    table.
+//  }
 }

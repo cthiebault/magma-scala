@@ -8,11 +8,15 @@ import org.obiba.magma.value.TextType
 class StaticDatasourceSpec extends UnitSpec {
 
   "An empty static Datasource" should "have no tables" in {
-    new StaticDatasource("empty").tables should be(empty)
+    val ds: StaticDatasource = new StaticDatasource("empty")
+    ds.tables should be(empty)
+    ds.getTable("none") should be(empty)
   }
 
-  "A static Datasource" should "have static type" in {
-    new StaticDatasource("empty").`type` should be("static")
+  "A static Datasource" should "have default values" in {
+    val ds: StaticDatasource = new StaticDatasource("ds")
+    ds.`type` should be("static")
+    ds.name should be("ds")
   }
 
   it should "be droppable" in {
@@ -27,5 +31,9 @@ class StaticDatasourceSpec extends UnitSpec {
     ds.attributes should be(empty)
     ds.tables should be(empty)
   }
+
+//  it should "have table after adding one" in {
+//    val ds = new StaticDatasource("test")
+//  }
 
 }
