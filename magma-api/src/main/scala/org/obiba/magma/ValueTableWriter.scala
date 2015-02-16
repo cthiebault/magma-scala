@@ -1,5 +1,6 @@
 package org.obiba.magma
 
+import org.obiba.magma.entity.Entity
 import org.obiba.magma.value._
 
 trait ValueTableWriter extends AutoCloseable {

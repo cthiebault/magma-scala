@@ -2,6 +2,7 @@ package org.obiba.magma.static
 
 import org.obiba.magma._
 import org.obiba.magma.attribute.ListAttributeWriter
+import org.obiba.magma.entity.Entity
 import org.obiba.magma.staticds.StaticValueTable
 import org.obiba.magma.value.Value
 

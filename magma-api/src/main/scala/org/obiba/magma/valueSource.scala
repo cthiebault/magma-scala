@@ -1,7 +1,6 @@
 package org.obiba.magma
 
-import org.obiba.magma.value.{ValueType, Value}
-
+import org.obiba.magma.value.{Value, ValueType}
 
 /**
  * Defines the contract for obtaining a particular {@link Value} from a {@code ValueSet}.
@@ -30,6 +29,11 @@ trait VariableValueSource extends ValueSource {
   def name: String
 
   def variable: Variable
+
+}
+
+abstract class AbstractVariableValueSource extends VariableValueSource {
+  override def name: String = variable.name
 }
 
 trait VariableValueSourceFactory {

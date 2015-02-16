@@ -8,9 +8,4 @@ trait Droppable {
 
 }
 
-class NonDroppable extends Droppable {
 
-  override def canDrop: Boolean = false
-
-  override def drop(): Unit = throw new UnsupportedOperationException(s"cannot drop $this")
-}

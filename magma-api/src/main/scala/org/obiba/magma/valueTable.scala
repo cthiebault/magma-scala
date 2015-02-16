@@ -1,5 +1,6 @@
 package org.obiba.magma
 
+import org.obiba.magma.entity.{EntityType, EntityProvider, Entity}
 import org.obiba.magma.value.Value
 
 import scala.collection.SortedSet
@@ -11,7 +12,7 @@ trait ValueTable extends Droppable with Timestamped {
 
   def datasource: Datasource
 
-  def entityType: String
+  def entityType: EntityType
 
   def isForEntityType(entityType: String): Boolean
 
@@ -66,9 +67,9 @@ abstract class AbstractValueTable(private val entityProvider: EntityProvider)
 
   private val variableSources: Map[String, VariableValueSource] = ListMap()
 
-  override def isForEntityType(entityType: String): Boolean = entityProvider.isForEntityType(entityType)
+  override def isForEntityType(entityType: String): Boolean = entityProvider.isForEntityType(EntityType(entityType))
 
-  override def entityType: String = entityProvider.entityType
+  override def entityType: EntityType = entityProvider.`type`
 
   override def entities: Set[Entity] = entityProvider.entities
 

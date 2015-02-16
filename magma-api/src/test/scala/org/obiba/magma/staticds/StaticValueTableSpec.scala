@@ -1,13 +1,14 @@
 package org.obiba.magma.staticds
 
-import org.obiba.magma.{EntityBean, UnitSpec}
+import org.obiba.magma.UnitSpec
+import org.obiba.magma.entity._
 import org.obiba.magma.static.StaticDatasource
 
 class StaticValueTableSpec extends UnitSpec {
 
   val ds = new StaticDatasource("ds")
 
-  val emptyTable = StaticValueTable("table", ds, "Participant", Set())
+  val emptyTable = StaticValueTable("table", ds, EntityType.Participant, Set())
 
   "An empty static ValueTable" should "have default values" in {
     emptyTable.name should be("table")
@@ -25,7 +26,7 @@ class StaticValueTableSpec extends UnitSpec {
   it should "have no value sets" in {
     emptyTable.valueSets should be(empty)
     emptyTable.valueSetCount should be(0)
-    emptyTable.hasValueSet(new EntityBean("Participant", "1")) should be(false)
+    emptyTable.hasValueSet(ParticipantEntityBean("1")) should be(false)
   }
   it should "have no entities" in {
     emptyTable.entities should be(empty)
@@ -33,9 +34,9 @@ class StaticValueTableSpec extends UnitSpec {
     emptyTable.isForEntityType("Participant") should be(true)
   }
 
-//  "A static ValueTable" should "have default values" in {
-//
-//    val table = StaticValueTable("table", ds, "Participant", Set())
-//    table.
-//  }
+  //  "A static ValueTable" should "have default values" in {
+  //
+  //    val table = StaticValueTable("table", ds, "Participant", Set())
+  //    table.
+  //  }
 }

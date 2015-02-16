@@ -1,5 +1,7 @@
 package org.obiba.magma
 
+import org.obiba.magma.entity.Entity
+
 trait ValueSet extends Timestamped {
 
   def valueTable: ValueTable

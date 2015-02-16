@@ -1,5 +1,6 @@
 package org.obiba.magma
 
+import org.obiba.magma.entity.Entity
 import org.obiba.magma.value.{ValueType, Value}
 
 import scala.collection.SortedSet
