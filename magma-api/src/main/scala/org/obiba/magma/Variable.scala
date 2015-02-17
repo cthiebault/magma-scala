@@ -1,8 +1,8 @@
 package org.obiba.magma
 
-import org.obiba.magma.attribute.AttributeWriter
-import org.obiba.magma.value.{ValueType, Value}
-
+import org.obiba.magma.attribute.{AttributeWriter, ListAttributeWriter}
+import org.obiba.magma.entity.EntityType
+import org.obiba.magma.value.{Value, ValueType}
 
 /**
  * The meta-data of a {@code Value}. {@code Value} instances can be obtained for {@code ValueSet} instances. When this
@@ -22,7 +22,7 @@ trait Variable extends AttributeWriter {
    *
    * @return
    */
-  def entityType: String
+  def entityType: EntityType
 
   /**
    * Returns true when this variable is for values of the specified {@code entityType}
@@ -47,7 +47,7 @@ trait Variable extends AttributeWriter {
    *
    * @return the name of the repeating group
    */
-  def occurrenceGroup: String
+  def occurrenceGroup: Option[String]
 
   /**
    * Returns the {@code ValueType} of this variable instance. Any {@code Value} obtained for this {@code variable}
@@ -62,23 +62,23 @@ trait Variable extends AttributeWriter {
    *
    * @return unit
    */
-  def unit: String
+  def unit: Option[String]
 
   /**
    * The IANA mime-type of binary data if applicable.
    *
    * @return the IANA mime-type
    */
-  def mimeType: String
+  def mimeType: Option[String]
 
   /**
-   * Used when this variable value is a pointer to another {@code VariableEntity}. The value is considered to point to
+   * Used when this variable value is a pointer to another {@code Entity}. The value is considered to point to
    * the referenced entity's {@code identifier}.
    *
    * @return the { @code entityType} that this value points to, this method returns null when the variable doesn't point
    *         to another entity.
    */
-  def referencedEntityType: String
+  def referencedEntityType: Option[EntityType]
 
   /**
    * Get the index (or position) of this variable in the list of variables of a table. Default value is 0, in which case
@@ -103,7 +103,7 @@ trait Variable extends AttributeWriter {
    */
   def categories: Set[Category]
 
-  def getCategory(categoryName: String): Category
+  def getCategory(name: String): Option[Category]
 
   /**
    * Returns true when {@code value} is equal to a {@code Category} marked as {@code missing} or when
@@ -117,4 +117,61 @@ trait Variable extends AttributeWriter {
   def areAllCategoriesMissing: Boolean
 
   def getVariableReference(table: ValueTable): String
+
+}
+
+object VariableReference {
+  def getReference(datasource: String, table: String): String = {
+    s"$datasource.$table"
+  }
+
+  def getReference(table: ValueTable, variable: Variable): String = {
+    table.tableReference + ":" + variable.name
+  }
+
+  def getReference(datasource: String, table: String, variable: String): String = {
+    ValueTableReference.getReference(datasource, table) + ":" + variable
+  }
+}
+
+case class VariableBean(
+  name: String,
+  entityType: EntityType,
+  valueType: ValueType,
+  index: Int,
+  isRepeatable: Boolean = false,
+  unit: Option[String] = None,
+  mimeType: Option[String] = None,
+  occurrenceGroup: Option[String] = None,
+  referencedEntityType: Option[EntityType] = None) extends Variable with ListAttributeWriter {
+
+  private val _categories: Set[Category] = Set()
+
+  override def isForEntityType(`type`: String): Boolean = entityType == EntityType(`type`)
+
+  override def isMissingValue(value: Value): Boolean = {
+    if (value.isNull || !hasCategories) {
+      return value.isNull
+    }
+    categories.map(c => valueType.valueOf(c.name) -> c).toMap.get(value) match {
+      case Some(c) => c.missing
+      case _ => true
+    }
+  }
+
+  override def hasCategories: Boolean = categories.nonEmpty
+
+  override def getCategory(name: String): Option[Category] = categories.find(_.name == name)
+
+  override def categories: Set[Category] = _categories
+
+  override def areAllCategoriesMissing: Boolean = categories.filterNot(_.missing).isEmpty
+
+  override def getVariableReference(table: ValueTable): String = VariableReference.getReference(table, this)
+}
+
+object VariableBean {
+  def apply(name: String, entityType: EntityType, valueType: ValueType): VariableBean = {
+    new VariableBean(name, entityType, valueType, 0)
+  }
 }

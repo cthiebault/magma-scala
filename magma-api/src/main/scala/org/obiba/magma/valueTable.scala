@@ -1,6 +1,6 @@
 package org.obiba.magma
 
-import org.obiba.magma.entity.{EntityType, EntityProvider, Entity}
+import org.obiba.magma.entity.{Entity, EntityProvider, EntityType}
 import org.obiba.magma.value.Value
 
 import scala.collection.SortedSet
@@ -54,18 +54,18 @@ trait ValueTable extends Droppable with Timestamped {
 
   def tableReference: String
 
-  object Reference {
-    def getReference(datasource: String, table: String): String = {
-      s"$datasource.$table"
-    }
-  }
+}
 
+object ValueTableReference {
+  def getReference(datasource: String, table: String): String = {
+    s"$datasource.$table"
+  }
 }
 
 abstract class AbstractValueTable(private val entityProvider: EntityProvider)
-    extends ValueTable with Initialisable {
+  extends ValueTable with Initialisable {
 
-  private val variableSources: Map[String, VariableValueSource] = ListMap()
+  protected var variableSources: Map[String, VariableValueSource] = ListMap()
 
   override def isForEntityType(entityType: String): Boolean = entityProvider.isForEntityType(EntityType(entityType))
 
@@ -77,16 +77,16 @@ abstract class AbstractValueTable(private val entityProvider: EntityProvider)
 
   override def valueSets: Traversable[ValueSet] = {
     entityProvider
-        .entities
-        .filter(hasValueSet)
-        .map(getValueSet(_).get)
+      .entities
+      .filter(hasValueSet)
+      .map(getValueSet(_).get)
   }
 
   override def variables: Traversable[Variable] = {
     variableSources
-        .values
-        .map(_.variable)
-        .filter(_ != null)
+      .values
+      .map(_.variable)
+      .filter(_ != null)
   }
 
   override def hasVariable(name: String): Boolean = variableSources.contains(name)
@@ -99,7 +99,6 @@ abstract class AbstractValueTable(private val entityProvider: EntityProvider)
   }
 
   override def getVariableValueSource(name: String): Option[VariableValueSource] = variableSources.get(name)
-
 
   override def hasEntity(entity: Entity): Boolean = entities.contains(entity)
 
@@ -121,13 +120,13 @@ abstract class AbstractValueTable(private val entityProvider: EntityProvider)
 
   override def getValueSetTimestamps(entities: SortedSet[Entity]): Traversable[Timestamps] = {
     entities
-        .map(getValueSetTimestamps)
-        .filter(_.isDefined)
-        .map(_.get)
+      .map(getValueSetTimestamps)
+      .filter(_.isDefined)
+      .map(_.get)
   }
 
   override def tableReference: String = {
-    Reference.getReference(if (datasource == null) "null" else datasource.name, name)
+    ValueTableReference.getReference(if (datasource == null) "null" else datasource.name, name)
   }
 
   override def valueSetCount: Int = valueSets.size
@@ -141,8 +140,8 @@ abstract class AbstractValueTable(private val entityProvider: EntityProvider)
   override def equals(other: Any): Boolean = other match {
     case that: AbstractValueTable =>
       (that canEqual this) &&
-          name == that.name &&
-          datasource == that.datasource
+        name == that.name &&
+        datasource == that.datasource
     case _ => false
   }
 
@@ -151,4 +150,5 @@ abstract class AbstractValueTable(private val entityProvider: EntityProvider)
     state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
   }
 
+  override def toString = s"$getClass($name, $entityType)"
 }

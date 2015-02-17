@@ -1,6 +1,7 @@
 package org.obiba.magma
 
 import org.obiba.magma.attribute.AttributeWriter
+import org.obiba.magma.entity.EntityType
 
 trait Datasource extends AttributeWriter with Initialisable with Droppable {
 
@@ -24,7 +25,7 @@ trait Datasource extends AttributeWriter with Initialisable with Droppable {
 
   def hasEntities(predicate: ValueTable => Boolean): Boolean
 
-  def createWriter(tableName: String, entityType: String): ValueTableWriter
+  def createWriter(tableName: String, entityType: EntityType): ValueTableWriter
 
 }
 

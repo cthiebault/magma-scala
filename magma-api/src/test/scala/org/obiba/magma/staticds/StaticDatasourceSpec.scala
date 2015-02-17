@@ -2,7 +2,7 @@ package org.obiba.magma.staticds
 
 import org.obiba.magma.UnitSpec
 import org.obiba.magma.attribute._
-import org.obiba.magma.static.StaticDatasource
+import org.obiba.magma.entity.EntityType
 import org.obiba.magma.value.TextType
 
 class StaticDatasourceSpec extends UnitSpec {
@@ -32,8 +32,42 @@ class StaticDatasourceSpec extends UnitSpec {
     ds.tables should be(empty)
   }
 
-//  it should "have table after adding one" in {
-//    val ds = new StaticDatasource("test")
-//  }
+  it should "have a table after adding one" in {
+    val ds = new StaticDatasource("test")
+    ds.createWriter("table", EntityType.Participant)
+
+    ds.tables should have size 1
+    ds.hasTable("table") should be(true)
+
+    val table = ds.getTable("table")
+    table should be('defined)
+    table.get.name should be("table")
+
+    ds.createWriter("table", EntityType.Participant)
+    ds.tables should have size 1
+  }
+
+  it can "rename table" in {
+    val ds = new StaticDatasource("test")
+    ds.createWriter("table", EntityType.Participant)
+    ds.renameTable("table", "new_table")
+
+    ds.tables should have size 1
+    ds.hasTable("table") should be(false)
+    ds.hasTable("new_table") should be(true)
+
+    val table = ds.getTable("new_table")
+    table should be('defined)
+    table.get.name should be("new_table")
+  }
+
+  it can "drop table" in {
+    val ds = new StaticDatasource("test")
+    ds.createWriter("table", EntityType.Participant)
+    ds.canDropTable("table") should be(true)
+
+    ds.dropTable("table")
+    ds.tables should be(empty)
+  }
 
 }

@@ -1,9 +1,8 @@
-package org.obiba.magma.static
+package org.obiba.magma.staticds
 
 import org.obiba.magma._
 import org.obiba.magma.attribute.ListAttributeWriter
-import org.obiba.magma.entity.Entity
-import org.obiba.magma.staticds.StaticValueTable
+import org.obiba.magma.entity.{Entity, EntityType}
 import org.obiba.magma.value.Value
 
 class StaticDatasource(override var name: String) extends AbstractDatasource with ListAttributeWriter {
@@ -36,12 +35,16 @@ class StaticDatasource(override var name: String) extends AbstractDatasource wit
   override def renameTable(tableName: String, newName: String): Unit = {
     val table: ValueTable = getTable(tableName).getOrElse(throw new NoSuchElementException)
     table.name = newName
-    _tables = _tables + (newName -> table)
+    _tables = _tables - tableName + (newName -> table)
   }
 
-  override def hasEntities(predicate: ValueTable => Boolean): Boolean = ???
+  override def hasEntities(predicate: ValueTable => Boolean): Boolean = tables.filter(predicate).nonEmpty
 
-  override def createWriter(tableName: String, entityType: String): ValueTableWriter = ???
+  override def createWriter(tableName: String, entityType: EntityType): ValueTableWriter = {
+    val table = getTable(tableName).getOrElse(StaticValueTable(tableName, this, entityType))
+    _tables = _tables + (tableName -> table)
+    new StaticValueTableWriter(table.asInstanceOf[StaticValueTable])
+  }
 
   override def initialise(): Unit = {}
 
