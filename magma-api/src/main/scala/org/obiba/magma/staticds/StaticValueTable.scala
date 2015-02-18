@@ -1,7 +1,5 @@
 package org.obiba.magma.staticds
 
-import java.time.Instant
-
 import org.obiba.magma._
 import org.obiba.magma.entity._
 import org.obiba.magma.value.{Value, ValueType}
@@ -11,6 +9,8 @@ class StaticValueTable(
   val datasource: Datasource,
   override val entityType: EntityType,
   private val entityProvider: EntityProvider) extends AbstractValueTable(entityProvider) {
+
+  // FIXME entities & EntityProvider.entities are disconnected!
 
   //TODO should we use a value class like VariableName instead of string here?
   private var values: Map[EntityIdentifier, Map[String, Value]] = Map()
@@ -25,7 +25,9 @@ class StaticValueTable(
     // do nothing
   }
 
-  override def getValueSet(entity: Entity): Option[ValueSet] = Some(new ValueSetBean(this, entity))
+  override def getValueSet(entity: Entity): Option[ValueSet] = {
+    if (_entities.contains(entity)) Some(new ValueSetBean(this, entity)) else None
+  }
 
   override def canDropValueSets: Boolean = false
 

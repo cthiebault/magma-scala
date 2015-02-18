@@ -1,6 +1,8 @@
 package org.obiba.magma.entity
 
-trait Entity {
+import com.google.common.collect.ComparisonChain
+
+trait Entity extends Ordered[Entity] {
 
   val `type`: EntityType
 
@@ -16,7 +18,14 @@ object EntityType {
 
 case class EntityIdentifier(value: String) extends AnyVal
 
-case class EntityBean(`type`: EntityType, identifier: EntityIdentifier) extends Entity
+case class EntityBean(`type`: EntityType, identifier: EntityIdentifier) extends Entity {
+  override def compare(that: Entity): Int = {
+    ComparisonChain.start
+      .compare(`type`.name, that.`type`.name)
+      .compare(identifier.value, that.identifier.value)
+      .result
+  }
+}
 
 object ParticipantEntityBean {
   def apply(identifier: String): EntityBean = EntityBean(EntityType.Participant, EntityIdentifier(identifier))

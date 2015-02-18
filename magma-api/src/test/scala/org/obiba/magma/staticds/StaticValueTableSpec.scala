@@ -2,9 +2,11 @@ package org.obiba.magma.staticds
 
 import java.time.Instant
 
-import org.obiba.magma.entity._
-import org.obiba.magma.value.{Value, TextType}
 import org.obiba.magma._
+import org.obiba.magma.entity._
+import org.obiba.magma.value.TextType
+
+import scala.collection.immutable.TreeSet
 
 class StaticValueTableSpec extends UnitSpec {
 
@@ -24,6 +26,7 @@ class StaticValueTableSpec extends UnitSpec {
     emptyTable.variables should be(empty)
     emptyTable.variableCount should be(0)
     emptyTable.hasVariable("none") should be(false)
+    emptyTable.getVariable("none") should be('empty)
   }
   it should "have no value sets" in {
     emptyTable.valueSets should be(empty)
@@ -96,11 +99,19 @@ class StaticValueTableSpec extends UnitSpec {
     table.timestamps.lastUpdate should not be null
 
     table.getValueSet(ParticipantEntityBean("1")) should be('defined)
+    table.getValueSet(ParticipantEntityBean("unknown")) should be('empty)
     val valueSet: ValueSet = table.getValueSet(ParticipantEntityBean("1")).get
     valueSet.entity should be(ParticipantEntityBean("1"))
     valueSet.valueTable should be(table)
+    valueSet.timestamps should not be null
+
+    table.getValueSetTimestamps(ParticipantEntityBean("1")).get should not be null
+    table.getValueSetTimestamps(ParticipantEntityBean("unknown")) should be('empty)
+
+    table.getValueSetTimestamps(TreeSet[Entity](ParticipantEntityBean("1"))) should have size (1)
 
     table.getValue(variable, valueSet) should be('defined)
+    table.getValue(VariableBean("variable2", EntityType.Participant, TextType), valueSet) should be('empty)
     val value = table.getValue(variable, valueSet).get
     value.isNull should be(false)
     value should be(TextType.valueOf("value 1"))
@@ -132,6 +143,5 @@ class StaticValueTableSpec extends UnitSpec {
     table.hasEntity(ParticipantEntityBean("1")) should be(false)
     table.hasValueSet(ParticipantEntityBean("1")) should be(false)
     table.timestamps.lastUpdate should be > lastUpdate
-
   }
 }
