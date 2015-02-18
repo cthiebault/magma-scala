@@ -6,11 +6,14 @@ trait Category extends AttributeWriter {
 
   def name: String
 
-  def code: String
+  def code: CategoryCode
 
   def missing: Boolean
 
 }
 
-case class CategoryBean(name: String, code: String, missing: Boolean) 
-    extends Category with ListAttributeWriter
+case class CategoryCode(value: String) extends AnyVal
+
+case class CategoryBean(name: String, code: CategoryCode, missing: Boolean = false)
+  extends Category with ListAttributeWriter
+

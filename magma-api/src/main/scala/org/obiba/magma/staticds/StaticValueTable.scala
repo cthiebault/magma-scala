@@ -1,16 +1,23 @@
 package org.obiba.magma.staticds
 
+import java.time.Instant
+
 import org.obiba.magma._
 import org.obiba.magma.entity._
 import org.obiba.magma.value.{Value, ValueType}
 
-class StaticValueTable(var name: String, val datasource: Datasource, override val entityType: EntityType,
+class StaticValueTable(
+  var name: String,
+  val datasource: Datasource,
+  override val entityType: EntityType,
   private val entityProvider: EntityProvider) extends AbstractValueTable(entityProvider) {
 
   //TODO should we use a value class like VariableName instead of string here?
   private var values: Map[EntityIdentifier, Map[String, Value]] = Map()
 
   private var _entities: Set[Entity] = Set()
+
+  private val _timestamps: TimestampsBean = TimestampsBean()
 
   override def canDrop: Boolean = true
 
@@ -26,16 +33,23 @@ class StaticValueTable(var name: String, val datasource: Datasource, override va
 
   override def isView: Boolean = false
 
-  override def timestamps: Timestamps = NullTimestamps
+  override def timestamps: Timestamps = _timestamps
 
   def addValues(identifier: EntityIdentifier, variable: Variable, value: Value): Unit = {
     val variableValues = values.getOrElse(identifier, Map()) + (variable.name -> value)
     values = values + (identifier -> variableValues)
+    _timestamps.touch()
   }
 
   def removeValues(identifier: EntityIdentifier): Unit = {
     values = values - identifier
+    _entities = _entities.filter(_.identifier != identifier)
+    _timestamps.touch()
   }
+
+  override def entities: Set[Entity] = _entities
+
+  override def hasValueSet(entity: Entity): Boolean = entities.contains(entity)
 
   def addEntity(entity: Entity) = _entities = _entities + entity
 

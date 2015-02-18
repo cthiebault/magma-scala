@@ -9,11 +9,10 @@ class Value(val valueType: ValueType, private val valueLoader: ValueLoader) {
       if (isNull) 0 else valueLoader.getLength
     }
     catch {
-      case e: UnsupportedOperationException => {
+      case e: UnsupportedOperationException =>
         // fallback to the length of the string representation of the value
         val str: String = toString
         if (str == null) 0 else str.length
-      }
     }
   }
 
@@ -32,7 +31,7 @@ class Value(val valueType: ValueType, private val valueLoader: ValueLoader) {
   }
 
   override def hashCode(): Int = {
-    val state = Seq(valueType, valueLoader)
+    val state = Seq(valueType, valueLoader.getValue)
     state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
   }
 

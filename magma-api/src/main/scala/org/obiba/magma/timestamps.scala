@@ -1,24 +1,24 @@
 package org.obiba.magma
 
-import org.obiba.magma.value.Value
+import java.time.Instant
 
 trait Timestamps {
 
-  def created: Value
+  def created: Instant
 
-  def lastUpdate: Value
+  def lastUpdate: Instant
 
+}
+
+case class TimestampsBean(created: Instant = Instant.now(), private var _lastUpdate: Instant = null) extends Timestamps {
+
+  override def lastUpdate: Instant = _lastUpdate
+
+  def touch(): Unit = _lastUpdate = Instant.now()
 }
 
 trait Timestamped {
 
   def timestamps: Timestamps
 
-}
-
-object NullTimestamps extends Timestamps {
-  
-  override def created: Value = ???
-
-  override def lastUpdate: Value = ???
 }

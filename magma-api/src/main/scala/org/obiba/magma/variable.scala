@@ -105,6 +105,8 @@ trait Variable extends AttributeWriter {
 
   def getCategory(name: String): Option[Category]
 
+  def addCategory(category: Category)
+
   /**
    * Returns true when {@code value} is equal to a {@code Category} marked as {@code missing} or when
    * {@code Value#isNull} returns true
@@ -134,7 +136,7 @@ object VariableReference {
   }
 }
 
-case class VariableBean(
+case class VariableBean private (
   name: String,
   entityType: EntityType,
   valueType: ValueType,
@@ -145,7 +147,7 @@ case class VariableBean(
   occurrenceGroup: Option[String] = None,
   referencedEntityType: Option[EntityType] = None) extends Variable with ListAttributeWriter {
 
-  private val _categories: Set[Category] = Set()
+  private var _categories: Set[Category] = Set()
 
   override def isForEntityType(`type`: String): Boolean = entityType == EntityType(`type`)
 
@@ -168,10 +170,14 @@ case class VariableBean(
   override def areAllCategoriesMissing: Boolean = categories.filterNot(_.missing).isEmpty
 
   override def getVariableReference(table: ValueTable): String = VariableReference.getReference(table, this)
+
+  override def addCategory(category: Category): Unit = _categories = _categories + category
 }
 
 object VariableBean {
+
   def apply(name: String, entityType: EntityType, valueType: ValueType): VariableBean = {
     new VariableBean(name, entityType, valueType, 0)
   }
+
 }

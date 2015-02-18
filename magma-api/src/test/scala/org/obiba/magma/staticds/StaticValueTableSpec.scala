@@ -1,8 +1,10 @@
 package org.obiba.magma.staticds
 
+import java.time.Instant
+
 import org.obiba.magma.entity._
-import org.obiba.magma.value.TextType
-import org.obiba.magma.{VariableValueSource, UnitSpec, VariableBean}
+import org.obiba.magma.value.{Value, TextType}
+import org.obiba.magma._
 
 class StaticValueTableSpec extends UnitSpec {
 
@@ -44,6 +46,8 @@ class StaticValueTableSpec extends UnitSpec {
     table.hasVariable("variable1") should be(true)
     table.variableCount should be(1)
     table.variables should have size 1
+    table.timestamps.created should not be null
+    table.timestamps.lastUpdate should be(null)
 
     val variable = table.getVariable("variable1").get
     variable.name should be("variable1")
@@ -56,6 +60,7 @@ class StaticValueTableSpec extends UnitSpec {
     val valueSource: VariableValueSource = table.getVariableValueSource("variable1").get
     valueSource.variable should be(variable)
     valueSource.name should be("variable1")
+    valueSource.valueType should be(TextType)
   }
 
   it can "remove variable" in {
@@ -71,5 +76,62 @@ class StaticValueTableSpec extends UnitSpec {
     table.hasVariable("variable1") should be(false)
     table.variableCount should be(0)
     table.variables should be(empty)
+  }
+
+  it can "have valueSets" in {
+    val ds = new StaticDatasource("test")
+    val tableWriter = ds.createWriter("table", EntityType.Participant)
+    val table = ds.getTable("table").get
+    val variableWriter = tableWriter.writeVariables
+    variableWriter.writeVariable(VariableBean("variable1", EntityType.Participant, TextType))
+    val variable = table.getVariable("variable1").get
+
+    val valueSetWriter = tableWriter.writeValueSet(ParticipantEntityBean("1"))
+    valueSetWriter.writeValue(variable, TextType.valueOf("value 1"))
+
+    table.entityCount should be(1)
+    table.entities should have size 1
+    table.hasEntity(ParticipantEntityBean("1")) should be(true)
+    table.hasValueSet(ParticipantEntityBean("1")) should be(true)
+    table.timestamps.lastUpdate should not be null
+
+    table.getValueSet(ParticipantEntityBean("1")) should be('defined)
+    val valueSet: ValueSet = table.getValueSet(ParticipantEntityBean("1")).get
+    valueSet.entity should be(ParticipantEntityBean("1"))
+    valueSet.valueTable should be(table)
+
+    table.getValue(variable, valueSet) should be('defined)
+    val value = table.getValue(variable, valueSet).get
+    value.isNull should be(false)
+    value should be(TextType.valueOf("value 1"))
+
+    val valueSource: VariableValueSource = table.getVariableValueSource("variable1").get
+    valueSource.getValue(valueSet) should be(TextType.valueOf("value 1"))
+    valueSource.supportVectorSource should be(true)
+  }
+
+  it can "remove valueSets" in {
+
+    val ds = new StaticDatasource("test")
+    val tableWriter = ds.createWriter("table", EntityType.Participant)
+    val table = ds.getTable("table").get
+    tableWriter.writeVariables.writeVariable(VariableBean("variable1", EntityType.Participant, TextType))
+    val variable = table.getVariable("variable1").get
+
+    val valueSetWriter = tableWriter.writeValueSet(ParticipantEntityBean("1"))
+    valueSetWriter.writeValue(variable, TextType.valueOf("value 1"))
+    val lastUpdate: Instant = table.timestamps.lastUpdate
+    lastUpdate should not be null
+
+    Thread sleep 1000
+
+    valueSetWriter.remove()
+
+    table.entityCount should be(0)
+    table.entities should be(empty)
+    table.hasEntity(ParticipantEntityBean("1")) should be(false)
+    table.hasValueSet(ParticipantEntityBean("1")) should be(false)
+    table.timestamps.lastUpdate should be > lastUpdate
+
   }
 }
