@@ -3,7 +3,7 @@ package org.obiba.magma
 import org.obiba.magma.entity.EntityType
 import org.obiba.magma.staticds.StaticDatasource
 import org.obiba.magma.value.TextType
-
+import org.obiba.magma.value.ValueConverters.StringConverters
 
 class VariableSpec extends UnitSpec {
 
@@ -48,16 +48,16 @@ class VariableSpec extends UnitSpec {
     variable.hasCategories should be(true)
     variable.categories should have size (2)
     variable.areAllCategoriesMissing should be(true)
-    variable.isMissingValue(TextType.valueOf("1")) should be(true)
+    variable.isMissingValue("1".toTextValue) should be(true)
 
     variable.addCategory(new CategoryBean("cat3", CategoryCode("3")))
 
     variable.categories should have size (3)
     variable.areAllCategoriesMissing should be(false)
     variable.isMissingValue(TextType.nullValue) should be(true)
-    variable.isMissingValue(TextType.valueOf("cat3")) should be(false)
-    variable.isMissingValue(TextType.valueOf("cat1")) should be(true)
-    variable.isMissingValue(TextType.valueOf("cat2")) should be(true)
+    variable.isMissingValue("cat3".toTextValue) should be(false)
+    variable.isMissingValue("cat1".toTextValue) should be(true)
+    variable.isMissingValue("cat2".toTextValue) should be(true)
   }
 
   it should "have a table reference" in {

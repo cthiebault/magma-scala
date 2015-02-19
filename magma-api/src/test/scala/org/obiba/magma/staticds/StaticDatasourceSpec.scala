@@ -3,7 +3,7 @@ package org.obiba.magma.staticds
 import org.obiba.magma.UnitSpec
 import org.obiba.magma.attribute._
 import org.obiba.magma.entity.EntityType
-import org.obiba.magma.value.TextType
+import org.obiba.magma.value.ValueConverters.StringConverters
 
 class StaticDatasourceSpec extends UnitSpec {
 
@@ -25,7 +25,7 @@ class StaticDatasourceSpec extends UnitSpec {
 
   it should "be empty after drop" in {
     val ds = new StaticDatasource("test")
-    ds.addAttribute(Attribute("attr", TextType.valueOf("french value")))
+    ds.addAttribute(Attribute("attr", "french value".toTextValue))
     ds.drop()
 
     ds.attributes should be(empty)

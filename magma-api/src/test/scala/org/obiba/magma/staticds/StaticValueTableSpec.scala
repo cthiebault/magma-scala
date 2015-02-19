@@ -5,6 +5,7 @@ import java.time.Instant
 import org.obiba.magma._
 import org.obiba.magma.entity._
 import org.obiba.magma.value.TextType
+import org.obiba.magma.value.ValueConverters.StringConverters
 
 import scala.collection.immutable.TreeSet
 
@@ -90,7 +91,7 @@ class StaticValueTableSpec extends UnitSpec {
     val variable = table.getVariable("variable1").get
 
     val valueSetWriter = tableWriter.writeValueSet(ParticipantEntityBean("1"))
-    valueSetWriter.writeValue(variable, TextType.valueOf("value 1"))
+    valueSetWriter.writeValue(variable, "value 1".toTextValue)
 
     table.entityCount should be(1)
     table.entities should have size 1
@@ -114,10 +115,10 @@ class StaticValueTableSpec extends UnitSpec {
     table.getValue(VariableBean("variable2", EntityType.Participant, TextType), valueSet) should be('empty)
     val value = table.getValue(variable, valueSet).get
     value.isNull should be(false)
-    value should be(TextType.valueOf("value 1"))
+    value should be("value 1".toTextValue)
 
     val valueSource: VariableValueSource = table.getVariableValueSource("variable1").get
-    valueSource.getValue(valueSet) should be(TextType.valueOf("value 1"))
+    valueSource.getValue(valueSet) should be("value 1".toTextValue)
     valueSource.supportVectorSource should be(true)
   }
 
@@ -130,7 +131,7 @@ class StaticValueTableSpec extends UnitSpec {
     val variable = table.getVariable("variable1").get
 
     val valueSetWriter = tableWriter.writeValueSet(ParticipantEntityBean("1"))
-    valueSetWriter.writeValue(variable, TextType.valueOf("value 1"))
+    valueSetWriter.writeValue(variable, "value 1".toTextValue)
     val lastUpdate: Instant = table.timestamps.lastUpdate
     lastUpdate should not be null
 

@@ -120,8 +120,10 @@ object IntegerType extends AbstractValueType with NumberType {
   }
 }
 
+//case class DateType(name: String = "date") extends ValueType {
 //
-//    case class DateType(name: String = "date") extends ValueType
+//}
+
 //
 //    case class DateTimeType(name: String = "datetime") extends ValueType
 //

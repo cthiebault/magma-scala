@@ -3,7 +3,7 @@ package org.obiba.magma.attribute
 import java.util.Locale.{ENGLISH, FRENCH, GERMAN}
 
 import org.obiba.magma.UnitSpec
-import org.obiba.magma.value._
+import org.obiba.magma.value.ValueConverters.StringConverters
 
 class AttributeSpec extends UnitSpec {
 
@@ -16,38 +16,38 @@ class AttributeSpec extends UnitSpec {
 
   "An AttributeAware" should "have attributes after writing" in {
     val writer = new TestAttributeWriter()
-    writer.addAttribute(Attribute("attr", "namespace", FRENCH, TextType.valueOf("french value")))
+    writer.addAttribute(Attribute("attr", "namespace", FRENCH, "french value".toTextValue))
     writer.attributes should have size 1
 
-    writer.addAttribute(Attribute("attr", "namespace", ENGLISH, TextType.valueOf("english value")))
+    writer.addAttribute(Attribute("attr", "namespace", ENGLISH, "english value".toTextValue))
     writer.attributes should have size 2
 
-    writer.getAttributeValue("attr", "namespace", FRENCH).get should be(TextType.valueOf("french value"))
+    writer.getAttributeValue("attr", "namespace", FRENCH).get should be("french value".toTextValue)
     writer.attributes should be(List(
-      Attribute("attr", "namespace", FRENCH, TextType.valueOf("french value")),
-      Attribute("attr", "namespace", ENGLISH, TextType.valueOf("english value"))))
+      Attribute("attr", "namespace", FRENCH, "french value".toTextValue),
+      Attribute("attr", "namespace", ENGLISH, "english value".toTextValue)))
   }
 
   it should "have new attribute after replacement" in {
     val writer = new TestAttributeWriter()
-    writer.addAttribute(Attribute("attr", "namespace", FRENCH, TextType.valueOf("french value")))
-    writer.addAttribute(Attribute("attr", "namespace", ENGLISH, TextType.valueOf("english value")))
-    writer.addAttribute(Attribute("attr", "namespace", FRENCH, TextType.valueOf("new french value")))
+    writer.addAttribute(Attribute("attr", "namespace", FRENCH, "french value".toTextValue))
+    writer.addAttribute(Attribute("attr", "namespace", ENGLISH, "english value".toTextValue))
+    writer.addAttribute(Attribute("attr", "namespace", FRENCH, "new french value".toTextValue))
     writer.attributes should have size 2
-    writer.getAttributeValue("attr", "namespace", FRENCH).get should be(TextType.valueOf("new french value"))
+    writer.getAttributeValue("attr", "namespace", FRENCH).get should be("new french value".toTextValue)
   }
 
   it should "have no attributes after removing" in {
     val writer = new TestAttributeWriter()
-    writer.addAttribute(Attribute("attr", "namespace", FRENCH, TextType.valueOf("french value")))
+    writer.addAttribute(Attribute("attr", "namespace", FRENCH, "french value".toTextValue))
     writer.removeAttribute("attr", "namespace", FRENCH)
     writer.attributes should be(empty)
   }
 
   it should "have one attribute after removing by locale" in {
     val writer = new TestAttributeWriter()
-    writer.addAttribute(Attribute("attr", "namespace", FRENCH, TextType.valueOf("french value")))
-    writer.addAttribute(Attribute("attr", "namespace", ENGLISH, TextType.valueOf("english value")))
+    writer.addAttribute(Attribute("attr", "namespace", FRENCH, "french value".toTextValue))
+    writer.addAttribute(Attribute("attr", "namespace", ENGLISH, "english value".toTextValue))
     writer.attributes should have size 2
 
     writer.removeAttribute("attr", "namespace", GERMAN)
@@ -59,8 +59,8 @@ class AttributeSpec extends UnitSpec {
 
   it should "have no attributes after removing by namespace" in {
     val writer = new TestAttributeWriter()
-    writer.addAttribute(Attribute("attr", "namespace", FRENCH, TextType.valueOf("french value")))
-    writer.addAttribute(Attribute("attr", "namespace", ENGLISH, TextType.valueOf("english value")))
+    writer.addAttribute(Attribute("attr", "namespace", FRENCH, "french value".toTextValue))
+    writer.addAttribute(Attribute("attr", "namespace", ENGLISH, "english value".toTextValue))
     writer.attributes should have size 2
 
     writer.removeAttributes("attr", "other namespace")
@@ -72,8 +72,8 @@ class AttributeSpec extends UnitSpec {
 
   it should "have no attributes after removing by name" in {
     val writer = new TestAttributeWriter()
-    writer.addAttribute(Attribute("attr", "namespace", FRENCH, TextType.valueOf("french value")))
-    writer.addAttribute(Attribute("attr", "namespace", ENGLISH, TextType.valueOf("english value")))
+    writer.addAttribute(Attribute("attr", "namespace", FRENCH, "french value".toTextValue))
+    writer.addAttribute(Attribute("attr", "namespace", ENGLISH, "english value".toTextValue))
     writer.attributes should have size 2
 
     writer.removeAttributes("other attr")
@@ -84,10 +84,10 @@ class AttributeSpec extends UnitSpec {
   }
 
   val attrWriter = new TestAttributeWriter()
-  attrWriter.addAttribute(Attribute("attr1", "namespace", FRENCH, TextType.valueOf("french value 1")))
-  attrWriter.addAttribute(Attribute("attr1", "namespace", ENGLISH, TextType.valueOf("english value 1")))
-  attrWriter.addAttribute(Attribute("attr2", "namespace", TextType.valueOf("value 2")))
-  attrWriter.addAttribute(Attribute("attr3", TextType.valueOf("value 3")))
+  attrWriter.addAttribute(Attribute("attr1", "namespace", FRENCH, "french value 1".toTextValue))
+  attrWriter.addAttribute(Attribute("attr1", "namespace", ENGLISH, "english value 1".toTextValue))
+  attrWriter.addAttribute(Attribute("attr2", "namespace", "value 2".toTextValue))
+  attrWriter.addAttribute(Attribute("attr3", "value 3".toTextValue))
 
   it should "have 3 attributes [namespace]" in {
     attrWriter.getAttributes(namespace = "namespace") should have size 3
@@ -97,10 +97,10 @@ class AttributeSpec extends UnitSpec {
   }
   it should "have an attribute [namespace.attr1.FRENCH]" in {
     attrWriter.getAttribute("attr1", "namespace", FRENCH).get should
-        be(Attribute("attr1", "namespace", FRENCH, TextType.valueOf("french value 1")))
+        be(Attribute("attr1", "namespace", FRENCH, "french value 1".toTextValue))
   }
   it should "have an attribute value [namespace.attr1.FRENCH]" in {
-    attrWriter.getAttributeValue("attr1", "namespace", FRENCH).get should be(TextType.valueOf("french value 1"))
+    attrWriter.getAttributeValue("attr1", "namespace", FRENCH).get should be("french value 1".toTextValue)
   }
   it should "not have an attribute [namespace.attr1.GERMAN]" in {
     attrWriter.getAttribute("attr1", "namespace", GERMAN) should be(None)

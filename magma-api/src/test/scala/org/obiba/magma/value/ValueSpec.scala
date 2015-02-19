@@ -1,12 +1,13 @@
 package org.obiba.magma.value
 
 import org.obiba.magma.UnitSpec
-
+import org.obiba.magma.value.ValueConverters.StringConverters
 
 class ValueSpec extends UnitSpec {
 
   "A Value" should "be equals to same value" in {
     TextType.valueOf("test") should be(TextType.valueOf("test"))
+    "test".toTextValue should be(TextType.valueOf("test"))
   }
   it should "have the right length for non null value" in {
     TextType.valueOf("test").length should be(4)
