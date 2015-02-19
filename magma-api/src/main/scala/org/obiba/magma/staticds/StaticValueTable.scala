@@ -2,6 +2,7 @@ package org.obiba.magma.staticds
 
 import org.obiba.magma._
 import org.obiba.magma.entity._
+import org.obiba.magma.time.{TimestampsBean, Timestamps}
 import org.obiba.magma.value.{Value, ValueType}
 
 class StaticValueTable(

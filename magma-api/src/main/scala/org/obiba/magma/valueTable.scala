@@ -1,6 +1,7 @@
 package org.obiba.magma
 
 import org.obiba.magma.entity.{Entity, EntityProvider, EntityType}
+import org.obiba.magma.time.{Timestamped, Timestamps}
 import org.obiba.magma.value.Value
 
 import scala.collection.SortedSet

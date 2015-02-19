@@ -120,9 +120,13 @@ object IntegerType extends AbstractValueType with NumberType {
   }
 }
 
-//case class DateType(name: String = "date") extends ValueType {
-//
-//}
+case class DateType(name: String = "date") extends AbstractValueType {
+
+  override def valueOf(string: String): Value = ???
+
+  override def valueOf(value: Any): Value = ???
+
+}
 
 //
 //    case class DateTimeType(name: String = "datetime") extends ValueType
