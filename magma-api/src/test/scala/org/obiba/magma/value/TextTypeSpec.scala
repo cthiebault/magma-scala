@@ -2,7 +2,7 @@ package org.obiba.magma.value
 
 import org.scalatest._
 
-class ValueTypeSpec extends FlatSpec with Matchers {
+class TextTypeSpec extends FlatSpec with Matchers {
 
   "A TextType" should "be named" in {
     TextType.name should be("text")

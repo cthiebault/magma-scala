@@ -1,5 +1,9 @@
 package org.obiba.magma.value
 
+import java.util.Comparator
+
+import com.google.common.collect.ComparisonChain
+
 class Value(val valueType: ValueType, private val valueLoader: ValueLoader) {
 
   def isNull: Boolean = value.isEmpty
@@ -25,8 +29,8 @@ class Value(val valueType: ValueType, private val valueLoader: ValueLoader) {
   override def equals(other: Any): Boolean = other match {
     case that: Value =>
       (that canEqual this) &&
-          valueType == that.valueType &&
-          valueLoader.getValue == that.valueLoader.getValue
+        valueType == that.valueType &&
+        valueLoader.getValue == that.valueLoader.getValue
     case _ => false
   }
 
@@ -48,5 +52,17 @@ object Value {
 
 }
 
+object ValueComparator extends Comparator[Value] {
 
+  override def compare(o1: Value, o2: Value): Int = {
+    if (o1.isNull && o2.isNull) return 0
+    if (o1.isNull) return -1
+    if (o2.isNull) return 1
+    ComparisonChain
+      .start
+      .compare(o1.value.get.asInstanceOf[Comparable[_]], o2.value.get.asInstanceOf[Comparable[_]])
+      .result
+  }
+
+}
 
