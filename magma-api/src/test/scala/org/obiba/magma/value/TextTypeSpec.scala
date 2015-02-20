@@ -1,8 +1,9 @@
 package org.obiba.magma.value
 
+import org.obiba.magma.UnitSpec
 import org.scalatest._
 
-class TextTypeSpec extends FlatSpec with Matchers {
+class TextTypeSpec extends UnitSpec {
 
   "A TextType" should "be named" in {
     TextType.name should be("text")

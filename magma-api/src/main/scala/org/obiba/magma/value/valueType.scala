@@ -8,6 +8,7 @@ import java.util.{Calendar, Comparator, Date}
 import com.google.common.base.Strings
 import org.obiba.magma.MagmaRuntimeException
 import org.obiba.magma.logging.Slf4jLogging
+import org.obiba.magma.utils.StringUtils.StringsWrapper
 import org.obiba.magma.value.ValueLoader.StaticValueLoader
 
 sealed trait ValueType extends Comparator[Value] {
@@ -87,7 +88,7 @@ object BooleanType extends AbstractValueType {
   def name: String = "boolean"
 
   def valueOf(string: String): Value = {
-    if (string == null) nullValue else valueOf(string.toBoolean)
+    if (string.isNullOrEmpty) nullValue else valueOf(string.toBoolean)
   }
 
   def valueOf(value: Any): Value = {
@@ -98,21 +99,20 @@ object BooleanType extends AbstractValueType {
     }
   }
 
-  private def valueOf(value: Boolean): Value = {
-    if (value) TRUE else FALSE
-  }
+  private def valueOf(value: Boolean): Value = if (value) TRUE else FALSE
 
 }
 
 
 trait NumberType extends ValueType
 
-
 object DecimalType extends AbstractValueType with NumberType {
 
   def name: String = "decimal"
 
-  def valueOf(string: String): Value = valueOf(string.replaceAll(",", ".").trim.toDouble)
+  def valueOf(string: String): Value = {
+    if (string.isNullOrEmpty) nullValue else valueOf(string.replaceAll(",", ".").trim.toDouble)
+  }
 
   def valueOf(value: Any): Value = {
     if (value == null) return nullValue
@@ -132,7 +132,9 @@ object IntegerType extends AbstractValueType with NumberType {
 
   def name: String = "integer"
 
-  def valueOf(string: String): Value = valueOf(string.replaceAll(",", ".").trim.toInt)
+  def valueOf(string: String): Value = {
+    if (string.isNullOrEmpty) nullValue else valueOf(string.replaceAll(",", ".").trim.toInt)
+  }
 
   def valueOf(value: Any): Value = {
     if (value == null) return nullValue
