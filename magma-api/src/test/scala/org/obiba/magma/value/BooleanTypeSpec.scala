@@ -31,22 +31,12 @@ class BooleanTypeSpec extends UnitSpec {
     }
   }
 
-  //  it should "support value input" in {
-  //    BooleanType.valueOf(true).value.get should be(true)
-  //  }
-  //
-  //  it should "have no value for null param" in {
-  //    IntegerType.valueOf(null).value should be('empty)
-  //  }
-  //
-  //  it should "be equals to toString()" in {
-  //    IntegerType.toString(IntegerType.valueOf(10)) should be("10")
-  //  }
-  //
-  //  it should "throw exception for invalid number" in {
-  //    a[NumberFormatException] should be thrownBy {
-  //      IntegerType.valueOf("string")
-  //    }
-  //  }
+  it should "sort values" in {
+    BooleanType.compare(BooleanType.falseValue, BooleanType.trueValue) should be < 0
+    BooleanType.compare(BooleanType.nullValue, BooleanType.trueValue) should be < 0
+    BooleanType.compare(BooleanType.nullValue, BooleanType.nullValue) should be(0)
+    BooleanType.compare(BooleanType.falseValue, BooleanType.falseValue) should be(0)
+    BooleanType.compare(BooleanType.trueValue, BooleanType.trueValue) should be(0)
+  }
 
 }

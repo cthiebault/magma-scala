@@ -52,7 +52,7 @@ object Value {
 
 }
 
-object ValueComparator extends Comparator[Value] {
+object ValueComparator extends Ordering[Value] {
 
   override def compare(o1: Value, o2: Value): Int = {
     if (o1.isNull && o2.isNull) return 0

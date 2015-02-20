@@ -73,8 +73,8 @@ object TextType extends AbstractValueType {
     if (o1.isNull) return -1
     if (o2.isNull) return 1
 
-    val s1: String = o1.value.asInstanceOf[String]
-    val s2: String = o2.value.asInstanceOf[String]
+    val s1: String = o1.value.get.asInstanceOf[String]
+    val s2: String = o2.value.get.asInstanceOf[String]
     Strings.nullToEmpty(s1.trim).compareTo(Strings.nullToEmpty(s2))
   }
 }
@@ -98,6 +98,10 @@ object BooleanType extends AbstractValueType {
       case _ => valueOf(value.toString)
     }
   }
+
+  def trueValue: Value = valueOf("true")
+
+  def falseValue: Value = valueOf("false")
 
   private def valueOf(value: Boolean): Value = if (value) TRUE else FALSE
 
