@@ -33,5 +33,13 @@ class IntegerTypeSpec extends UnitSpec {
       IntegerType.valueOf("string")
     }
   }
+
+
+  it should "sort values" in {
+    IntegerType.compare(IntegerType.valueOf("1"), IntegerType.valueOf("2")) should be < 0
+    IntegerType.compare(IntegerType.valueOf("2"), IntegerType.valueOf("1")) should be > 0
+    IntegerType.compare(IntegerType.nullValue, IntegerType.valueOf("2")) should be < 0
+    IntegerType.compare(IntegerType.nullValue, IntegerType.nullValue) should be(0)
+  }
   
 }
