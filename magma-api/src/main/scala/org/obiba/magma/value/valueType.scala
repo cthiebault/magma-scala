@@ -1,12 +1,13 @@
 package org.obiba.magma.value
 
 import java.text.ParseException
-import java.time.format.{DateTimeFormatter, ResolverStyle}
+import java.time.format.{DateTimeParseException, DateTimeFormatter, ResolverStyle}
 import java.time.{LocalDate, ZoneId}
 import java.util.{Calendar, Comparator, Date}
 
 import com.google.common.base.Strings
 import org.obiba.magma.MagmaRuntimeException
+import org.obiba.magma.logging.Slf4jLogging
 import org.obiba.magma.value.ValueLoader.StaticValueLoader
 
 sealed trait ValueType extends Comparator[Value] {
@@ -147,7 +148,7 @@ object IntegerType extends AbstractValueType with NumberType {
 }
 
 
-object DateType extends AbstractValueType {
+object DateType extends AbstractValueType with Slf4jLogging {
 
   protected[value] val SUPPORTED_FORMATS_PATTERNS = List(
     "yyyy-MM-dd", // preferred one: ISO_8601
@@ -169,7 +170,7 @@ object DateType extends AbstractValueType {
    */
   private val SUPPORTED_FORMATS: List[DateTimeFormatter] = SUPPORTED_FORMATS_PATTERNS.map(formatter)
 
-  private val SUPPORTED_FORMATS_PATTERN: String = SUPPORTED_FORMATS_PATTERNS.mkString(",")
+  private val SUPPORTED_FORMATS_PATTERN: String = SUPPORTED_FORMATS_PATTERNS.mkString(", ")
 
   private def formatter(pattern: String): DateTimeFormatter = {
     DateTimeFormatter.ofPattern(pattern).withResolverStyle(ResolverStyle.LENIENT)
@@ -181,14 +182,12 @@ object DateType extends AbstractValueType {
     if (string == null) {
       return nullValue
     }
-
     for (format <- SUPPORTED_FORMATS) {
       try {
         return valueOf(LocalDate.parse(string, format))
       }
       catch {
-        case e: ParseException => {
-        }
+        case e: DateTimeParseException => {}
       }
     }
     throw new MagmaRuntimeException(

@@ -1,5 +1,6 @@
 package org.obiba.magma
 
+import org.obiba.magma.logging.Slf4jLogging
 import org.scalatest._
 
 abstract class UnitSpec extends FlatSpec
@@ -7,3 +8,4 @@ abstract class UnitSpec extends FlatSpec
   with OptionValues
   with Inside
   with Inspectors
+  with Slf4jLogging
