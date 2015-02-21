@@ -25,6 +25,8 @@ case class EntityBean(`type`: EntityType, identifier: EntityIdentifier) extends 
       .compare(identifier.value, that.identifier.value)
       .result
   }
+
+  override def toString: String = "entity[" + `type`.name + ":" + identifier.value + "]"
 }
 
 object ParticipantEntityBean {
