@@ -237,7 +237,7 @@ object DateTimeType extends AbstractValueType with Slf4jLogging {
   /**
    * Preferred format.
    */
-  private val ISO_8601: DateTimeFormatter = formatter(SUPPORTED_FORMATS_PATTERNS.head)
+  protected[value] val ISO_8601: DateTimeFormatter = formatter(SUPPORTED_FORMATS_PATTERNS.head)
 
   /**
    * These are used to support common date formats.

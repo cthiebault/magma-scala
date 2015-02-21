@@ -70,7 +70,7 @@ class DateTimeTypeSpec extends UnitSpec {
       Duration.between(now, dateTimeValue).getSeconds should be < 1l
 
       // TODO test toString
-      // DateTimeType.toString(value) should be(now.toString)
+      // DateTimeType.toString(value) should be(DateTimeType.ISO_8601.format(now))
     }
   }
 

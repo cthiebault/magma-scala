@@ -22,6 +22,10 @@ class ValueSequence(valueType: ValueType, valueLoader: ValueLoader) extends Valu
       .getOrElse(List())
       .foldLeft(0l) { (total, value) => total + value.length}
   }
+
+  def contains(value: Value): Boolean = values.contains(value)
+
+  def get(index: Int): Option[Value] = values.lift(index)
 }
 
 object ValueSequence {
