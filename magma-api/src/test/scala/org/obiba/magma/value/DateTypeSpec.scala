@@ -21,7 +21,7 @@ class DateTypeSpec extends UnitSpec {
 
   it should "not support unknown pattern" in {
     val thrown = the[MagmaRuntimeException] thrownBy {
-      DateType.valueOf(format("yyyy", LocalDate.now))
+      DateType.valueOf("1 janvier 2015")
     }
     thrown.getMessage should startWith("Cannot parse date from string value")
   }
@@ -42,6 +42,14 @@ class DateTypeSpec extends UnitSpec {
   
   it can "be built from Value" in {
     DateType.valueOf(DateType.now).value.get should be(LocalDate.now)
+  }
+
+  it should "sort values" in {
+    DateType.compare(DateType.valueOf("2015/01/01"), DateType.now) should be < 0
+    DateType.compare(DateType.valueOf("2015/01/01"), DateType.valueOf("2014/01/01")) should be > 0
+    DateType.compare(DateType.nullValue, DateType.now) should be < 0
+    DateType.compare(DateType.now, DateType.now) should be(0)
+    DateType.compare(DateType.nullValue, DateType.nullValue) should be(0)
   }
 
   private def testPattern(pattern: String): Unit = {

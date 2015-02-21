@@ -1,13 +1,13 @@
 package org.obiba.magma.value
 
-import java.text.ParseException
-import java.time.format.{DateTimeParseException, DateTimeFormatter, ResolverStyle}
-import java.time.{LocalDate, ZoneId}
+import java.time.format.{DateTimeFormatter, DateTimeParseException, ResolverStyle}
+import java.time.{LocalDate, LocalDateTime}
 import java.util.{Calendar, Comparator, Date}
 
 import com.google.common.base.Strings
 import org.obiba.magma.MagmaRuntimeException
 import org.obiba.magma.logging.Slf4jLogging
+import org.obiba.magma.utils.DateConverters.{CalendarConverters, DateConverters}
 import org.obiba.magma.utils.StringUtils.StringsWrapper
 import org.obiba.magma.value.ValueLoader.StaticValueLoader
 
@@ -205,8 +205,8 @@ object DateType extends AbstractValueType with Slf4jLogging {
   override def valueOf(any: Any): Value = {
     any match {
       case null => nullValue
-      case d: Date => valueOf(d.toInstant.atZone(ZoneId.systemDefault).toLocalDate)
-      case c: Calendar => valueOf(c.toInstant.atZone(ZoneId.systemDefault).toLocalDate)
+      case d: Date => valueOf(d.toLocalDate)
+      case c: Calendar => valueOf(c.toLocalDate)
       case s: String => valueOf(s)
       case v: Value => if (v.isNull) nullValue else valueOf(v.value.get)
       case _ => valueOf(any.toString)
@@ -219,9 +219,74 @@ object DateType extends AbstractValueType with Slf4jLogging {
 
 }
 
-//
-//    case class DateTimeType(name: String = "datetime") extends ValueType
-//
+object DateTimeType extends AbstractValueType with Slf4jLogging {
+
+  protected[value] val SUPPORTED_FORMATS_PATTERNS = List(
+    "yyyy-MM-dd'T'HH:mm:ss.SSS", // preferred one: ISO_8601
+    "yyyy-MM-dd'T'HH:mm:ss",
+    "yyyy-MM-dd'T'HH:mm",
+    "yyyy-MM-dd HH:mm:ss",
+    "yyyy/MM/dd HH:mm:ss",
+    "yyyy.MM.dd HH:mm:ss",
+    "yyyy MM dd HH:mm:ss",
+    "yyyy-MM-dd HH:mm",
+    "yyyy/MM/dd HH:mm",
+    "yyyy.MM.dd HH:mm",
+    "yyyy MM dd HH:mm")
+
+  /**
+   * Preferred format.
+   */
+  private val ISO_8601: DateTimeFormatter = formatter(SUPPORTED_FORMATS_PATTERNS.head)
+
+  /**
+   * These are used to support common date formats.
+   */
+  private val SUPPORTED_FORMATS: List[DateTimeFormatter] = SUPPORTED_FORMATS_PATTERNS.map(formatter)
+
+  private val SUPPORTED_FORMATS_PATTERN: String = SUPPORTED_FORMATS_PATTERNS.mkString(", ")
+
+  private def formatter(pattern: String): DateTimeFormatter = {
+    DateTimeFormatter.ofPattern(pattern).withResolverStyle(ResolverStyle.LENIENT)
+  }
+
+  override def name: String = "datetime"
+
+  override def valueOf(string: String): Value = {
+    if (string == null) {
+      return nullValue
+    }
+    for (format <- SUPPORTED_FORMATS) {
+      try {
+        return valueOf(LocalDateTime.parse(string, format))
+      }
+      catch {
+        case e: DateTimeParseException => {}
+      }
+    }
+    throw new MagmaRuntimeException(
+      s"Cannot parse datetime from string value '$string'. Expected format is one of $SUPPORTED_FORMATS_PATTERN")
+  }
+
+  private def valueOf(localDateTime: LocalDateTime): Value = Value(this, new StaticValueLoader(localDateTime))
+
+  override def valueOf(any: Any): Value = {
+    any match {
+      case null => nullValue
+      case d: Date => valueOf(d.toLocalDateTime)
+      case c: Calendar => valueOf(c.toLocalDateTime)
+      case s: String => valueOf(s)
+      case v: Value => if (v.isNull) nullValue else valueOf(v.value.get)
+      case _ => valueOf(any.toString)
+    }
+  }
+
+  override protected def toString(value: Any): String = ISO_8601.format(value.asInstanceOf[LocalDateTime])
+
+  def now: Value = valueOf(LocalDateTime.now)
+
+}
+
 //    case class LocaleType(name: String = "locale") extends ValueType
 //
 //    case class BinaryType(name: String = "binary") extends ValueType

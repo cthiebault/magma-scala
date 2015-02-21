@@ -33,5 +33,13 @@ class DecimalTypeSpec extends UnitSpec {
       DecimalType.valueOf("string")
     }
   }
-  
+
+  it should "sort values" in {
+    DecimalType.compare(DecimalType.valueOf("1"), DecimalType.valueOf("2")) should be < 0
+    DecimalType.compare(DecimalType.valueOf("2"), DecimalType.valueOf("1")) should be > 0
+    DecimalType.compare(DecimalType.nullValue, DecimalType.valueOf("2")) should be < 0
+    DecimalType.compare(DecimalType.nullValue, DecimalType.nullValue) should be(0)
+    DecimalType.compare(DecimalType.valueOf("2"), DecimalType.valueOf("2")) should be(0)
+  }
+
 }
