@@ -13,6 +13,10 @@ object ValueConverters {
 
     def toIntegerValue: Value = IntegerType.valueOf(str)
 
+    def toDateValue: Value = DateType.valueOf(str)
+
+    def toDateTimeValue: Value = DateTimeType.valueOf(str)
+
   }
 
 }

@@ -3,6 +3,7 @@ package org.obiba.magma.value
 import java.lang.Boolean._
 
 import org.obiba.magma.UnitSpec
+import org.obiba.magma.value.ValueConverters.StringConverters
 
 class BooleanTypeSpec extends UnitSpec {
 
@@ -11,11 +12,11 @@ class BooleanTypeSpec extends UnitSpec {
   }
 
   it should "support true string input" in {
-    BooleanType.valueOf("true").value.get should be(TRUE)
+    "true".toBooleanValue.value.get should be(TRUE)
   }
 
   it should "support false string input" in {
-    BooleanType.valueOf("false").value.get should be(FALSE)
+    "false".toBooleanValue.value.get should be(FALSE)
   }
 
   it should "support boolean input" in {

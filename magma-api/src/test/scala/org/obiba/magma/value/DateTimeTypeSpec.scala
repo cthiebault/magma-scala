@@ -6,6 +6,7 @@ import java.time.{Duration, Period, LocalDateTime, LocalDate}
 import java.util.{Calendar, Date}
 
 import org.obiba.magma.utils.DateConverters.{CalendarConverters, DateConverters, LocalDateConverters}
+import org.obiba.magma.value.ValueConverters.StringConverters
 import org.obiba.magma.{MagmaRuntimeException, UnitSpec}
 
 class DateTimeTypeSpec extends UnitSpec {
@@ -62,7 +63,7 @@ class DateTimeTypeSpec extends UnitSpec {
       val now = LocalDateTime.now
 
       val formattedDate: String = now.format(DateTimeFormatter.ofPattern(pattern).withResolverStyle(ResolverStyle.LENIENT))
-      val value: Value = DateTimeType.valueOf(formattedDate)
+      val value: Value = formattedDate.toDateTimeValue
       value.value should be('defined)
 
       val dateTimeValue: LocalDateTime = value.value.get.asInstanceOf[LocalDateTime]

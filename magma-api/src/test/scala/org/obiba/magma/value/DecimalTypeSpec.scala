@@ -1,6 +1,7 @@
 package org.obiba.magma.value
 
 import org.obiba.magma.UnitSpec
+import org.obiba.magma.value.ValueConverters.StringConverters
 
 class DecimalTypeSpec extends UnitSpec {
 
@@ -10,6 +11,7 @@ class DecimalTypeSpec extends UnitSpec {
   
   it should "support string input" in {
     DecimalType.valueOf("10").value.get should be(10)
+    "10".toDecimalValue.value.get should be(10)
   }
 
   it should "support number input" in {

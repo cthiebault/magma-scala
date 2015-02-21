@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.util.{Calendar, Date}
 
+import org.obiba.magma.value.ValueConverters.StringConverters
 import org.obiba.magma.{MagmaRuntimeException, UnitSpec}
 import org.obiba.magma.utils.DateConverters.LocalDateConverters
 
@@ -55,7 +56,8 @@ class DateTypeSpec extends UnitSpec {
   private def testPattern(pattern: String): Unit = {
     it should s"support $pattern format" in {
       val now = LocalDate.now
-      val value: Value = DateType.valueOf(format(pattern, now))
+      val formattedDate: String = format(pattern, now)
+      val value: Value = formattedDate.toDateValue
       value.value should be('defined)
       value.value.get should be(now)
       DateType.toString(value) should be(now.toString)
