@@ -11,6 +11,8 @@ import org.obiba.magma.utils.DateConverters.{CalendarConverters, DateConverters}
 import org.obiba.magma.utils.StringUtils.StringsWrapper
 import org.obiba.magma.value.ValueLoader.StaticValueLoader
 
+import scala.util.Try
+
 sealed trait ValueType extends Comparator[Value] {
 
   def name: String
@@ -92,10 +94,13 @@ object BooleanType extends AbstractValueType {
   }
 
   def valueOf(value: Any): Value = {
-    if (value == null) return nullValue
-    value match {
-      case b: Boolean => valueOf(b)
-      case _ => valueOf(value.toString)
+    if (value == null) {
+      nullValue
+    } else {
+      value match {
+        case b: Boolean => valueOf(b)
+        case _ => valueOf(value.toString)
+      }
     }
   }
 
@@ -119,10 +124,13 @@ object DecimalType extends AbstractValueType with NumberType {
   }
 
   def valueOf(value: Any): Value = {
-    if (value == null) return nullValue
-    value match {
-      case n: Number => valueOf(n.doubleValue())
-      case _ => valueOf(value.toString)
+    if (value == null) {
+      nullValue
+    } else {
+      value match {
+        case n: Number => valueOf(n.doubleValue())
+        case _ => valueOf(value.toString)
+      }
     }
   }
 
@@ -141,10 +149,13 @@ object IntegerType extends AbstractValueType with NumberType {
   }
 
   def valueOf(value: Any): Value = {
-    if (value == null) return nullValue
-    value match {
-      case n: Number => valueOf(n.intValue())
-      case _ => valueOf(value.toString)
+    if (value == null) {
+      nullValue
+    } else {
+      value match {
+        case n: Number => valueOf(n.intValue())
+        case _ => valueOf(value.toString)
+      }
     }
   }
 
@@ -186,18 +197,22 @@ object DateType extends AbstractValueType with Slf4jLogging {
 
   override def valueOf(string: String): Value = {
     if (string == null) {
-      return nullValue
+      nullValue
+    } else {
+      // TODO should not iterate on every format but return on the first success
+      SUPPORTED_FORMATS
+        .map(tryParsing(string, _))
+        .filter(_.isSuccess)
+        .map(_.get)
+        .headOption
+        .getOrElse(
+          throw new MagmaRuntimeException(
+            s"Cannot parse date from string value '$string'. Expected format is one of $SUPPORTED_FORMATS_PATTERN"))
     }
-    for (format <- SUPPORTED_FORMATS) {
-      try {
-        return valueOf(LocalDate.parse(string, format))
-      }
-      catch {
-        case e: DateTimeParseException => {}
-      }
-    }
-    throw new MagmaRuntimeException(
-      s"Cannot parse date from string value '$string'. Expected format is one of $SUPPORTED_FORMATS_PATTERN")
+  }
+
+  private def tryParsing(string: String, format: DateTimeFormatter): Try[Value] = {
+    Try(valueOf(LocalDate.parse(string, format)))
   }
 
   private def valueOf(localDate: LocalDate): Value = Value(this, new StaticValueLoader(localDate))
@@ -254,18 +269,22 @@ object DateTimeType extends AbstractValueType with Slf4jLogging {
 
   override def valueOf(string: String): Value = {
     if (string == null) {
-      return nullValue
+      nullValue
+    } else {
+      // TODO should not iterate on every format but return on the first success
+      SUPPORTED_FORMATS
+        .map(tryParsing(string, _))
+        .filter(_.isSuccess)
+        .map(_.get)
+        .headOption
+        .getOrElse(
+          throw new MagmaRuntimeException(
+            s"Cannot parse datetime from string value '$string'. Expected format is one of $SUPPORTED_FORMATS_PATTERN"))
     }
-    for (format <- SUPPORTED_FORMATS) {
-      try {
-        return valueOf(LocalDateTime.parse(string, format))
-      }
-      catch {
-        case e: DateTimeParseException => {}
-      }
-    }
-    throw new MagmaRuntimeException(
-      s"Cannot parse datetime from string value '$string'. Expected format is one of $SUPPORTED_FORMATS_PATTERN")
+  }
+
+  private def tryParsing(string: String, format: DateTimeFormatter): Try[Value] = {
+    Try(valueOf(LocalDateTime.parse(string, format)))
   }
 
   private def valueOf(localDateTime: LocalDateTime): Value = Value(this, new StaticValueLoader(localDateTime))

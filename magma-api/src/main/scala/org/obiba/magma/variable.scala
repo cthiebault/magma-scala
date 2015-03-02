@@ -136,7 +136,7 @@ object VariableReference {
   }
 }
 
-case class VariableBean private (
+case class VariableBean private(
   name: String,
   entityType: EntityType,
   valueType: ValueType,
@@ -153,11 +153,14 @@ case class VariableBean private (
 
   override def isMissingValue(value: Value): Boolean = {
     if (value.isNull || !hasCategories) {
-      return value.isNull
-    }
-    categories.map(c => valueType.valueOf(c.name) -> c).toMap.get(value) match {
-      case Some(c) => c.missing
-      case _ => true
+      value.isNull
+    } else {
+      categories.map(c => valueType.valueOf(c.name) -> c)
+        .toMap
+        .get(value) match {
+        case Some(c) => c.missing
+        case _ => true
+      }
     }
   }
 
