@@ -2,7 +2,7 @@ package org.obiba.magma.value
 
 import java.time.format.{DateTimeFormatter, DateTimeParseException, ResolverStyle}
 import java.time.{LocalDate, LocalDateTime}
-import java.util.{Calendar, Comparator, Date}
+import java.util.{Calendar, Comparator, Date, Locale, Base64}
 
 import com.google.common.base.Strings
 import org.obiba.magma.MagmaRuntimeException
@@ -34,7 +34,6 @@ sealed trait ValueType extends Comparator[Value] {
   //    def convert(value: Value): Value
 }
 
-
 abstract class AbstractValueType extends ValueType {
 
   def nullValue: Value = valueOf(null)
@@ -59,7 +58,6 @@ abstract class AbstractValueType extends ValueType {
 
 }
 
-
 object TextType extends AbstractValueType {
 
   def name: String = "text"
@@ -80,7 +78,6 @@ object TextType extends AbstractValueType {
     Strings.nullToEmpty(s1.trim).compareTo(Strings.nullToEmpty(s2))
   }
 }
-
 
 object BooleanType extends AbstractValueType {
 
@@ -112,7 +109,6 @@ object BooleanType extends AbstractValueType {
 
 }
 
-
 trait NumberType extends ValueType
 
 object DecimalType extends AbstractValueType with NumberType {
@@ -139,7 +135,6 @@ object DecimalType extends AbstractValueType with NumberType {
   }
 }
 
-
 object IntegerType extends AbstractValueType with NumberType {
 
   def name: String = "integer"
@@ -163,7 +158,6 @@ object IntegerType extends AbstractValueType with NumberType {
     Value(this, new StaticValueLoader(value))
   }
 }
-
 
 object DateType extends AbstractValueType with Slf4jLogging {
 
@@ -306,12 +300,78 @@ object DateTimeType extends AbstractValueType with Slf4jLogging {
 
 }
 
-//    case class LocaleType(name: String = "locale") extends ValueType
-//
-//    case class BinaryType(name: String = "binary") extends ValueType
-//
-//    case class PointType(name: String = "point") extends ValueType
-//
-//    case class LineStringType(name: String = "linestring") extends ValueType
-//
-//    case class PolygonType(name: String = "polygon") extends ValueType
+object LocaleType extends AbstractValueType {
+
+  def name: String = "locale"
+
+  def valueOf(string: String): Value = {
+    if (string.isNullOrEmpty) {
+      return nullValue
+    }
+    val parts = string.split("_")
+    var locale: Locale = null
+    parts.length match {
+      case 1 =>
+        locale = new Locale(parts(0))
+      case 2 =>
+        locale = new Locale(parts(0), parts(1))
+      case 3 =>
+        locale = new Locale(parts(0), parts(1), parts(2))
+      case _ =>
+        throw new IllegalArgumentException("Invalid locale string " + string)
+    }
+    Value(this, new StaticValueLoader(locale))
+  }
+
+  def valueOf(value: Any): Value = {
+    if (value == null) {
+      return nullValue
+    }
+    if (classOf[Locale].isAssignableFrom(value.getClass)) {
+      return Value(this, new StaticValueLoader(value))
+    }
+    if (classOf[String].isAssignableFrom(value.getClass)) {
+      return valueOf(value.asInstanceOf[String])
+    }
+    throw new IllegalArgumentException("Cannot construct " + getClass.getSimpleName + " from type " + value.getClass + ".")
+  }
+
+}
+
+object BinaryType extends AbstractValueType {
+
+  def name: String = "binary"
+
+  def valueOf(string: String): Value = {
+    if (string.isNullOrEmpty) {
+      return nullValue
+    }
+    Value(this, new StaticValueLoader(Base64.getDecoder.decode(string)))
+  }
+
+  def valueOf(value: Any): Value = {
+    if (value == null) {
+      return nullValue
+    }
+    if (classOf[Array[Byte]].isAssignableFrom(value.getClass)) {
+      return Value(this, new StaticValueLoader(value))
+    }
+    if (classOf[String].isAssignableFrom(value.getClass)) {
+      return valueOf(value.asInstanceOf[String])
+    }
+    throw new IllegalArgumentException("Cannot construct " + getClass.getSimpleName + " from type " + value.getClass + ".")
+  }
+}
+
+//object PointType extends AbstractValueType {
+//  def name: String = "point"
+//}
+
+//object LineStringType extends AbstractValueType {
+//  def name: String = "linestring"
+//}
+
+//object PolygonType extends AbstractValueType {
+//  def name: String = "polygon"
+//}
+
