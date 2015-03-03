@@ -1,11 +1,13 @@
 package org.obiba.magma.staticds
 
+import java.time.Clock
+
 import org.obiba.magma._
 import org.obiba.magma.attribute.ListAttributeWriter
 import org.obiba.magma.entity.{Entity, EntityType}
 import org.obiba.magma.value.Value
 
-class StaticDatasource(override var name: String) extends AbstractDatasource with ListAttributeWriter {
+class StaticDatasource(override var name: String)(implicit clock: Clock) extends AbstractDatasource with ListAttributeWriter {
 
   private var _tables: Map[String, ValueTable] = Map()
 

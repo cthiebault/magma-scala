@@ -97,13 +97,14 @@ class StaticValueTable(
 }
 
 object StaticValueTable {
-  def apply(name: String, datasource: Datasource, entityType: EntityType, entitiesSet: Set[Entity]): StaticValueTable = {
+  def apply(name: String, datasource: Datasource, entityType: EntityType, entitiesSet: Set[Entity])
+    (implicit clock: Clock): StaticValueTable = {
     new StaticValueTable(name, datasource, entityType, new AbstractEntityProvider(entityType) {
       override def entities: Set[Entity] = entitiesSet
     })
   }
 
-  def apply(name: String, datasource: Datasource, entityType: EntityType): StaticValueTable = {
+  def apply(name: String, datasource: Datasource, entityType: EntityType)(implicit clock: Clock): StaticValueTable = {
     apply(name, datasource, entityType, Set())
   }
 }
