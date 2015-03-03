@@ -1,15 +1,19 @@
 package org.obiba.magma.staticds
 
+import java.time.Clock
+
 import org.obiba.magma._
 import org.obiba.magma.entity._
-import org.obiba.magma.time.{TimestampsBean, Timestamps}
+import org.obiba.magma.time.{Timestamps, TimestampsBean}
 import org.obiba.magma.value.{Value, ValueType}
+
+import scala.collection.SortedSet
 
 class StaticValueTable(
   var name: String,
   val datasource: Datasource,
   override val entityType: EntityType,
-  private val entityProvider: EntityProvider) extends AbstractValueTable(entityProvider) {
+  private val entityProvider: EntityProvider)(implicit clock: Clock) extends AbstractValueTable(entityProvider) {
 
   // FIXME entities & EntityProvider.entities are disconnected!
 
@@ -58,15 +62,25 @@ class StaticValueTable(
 
   def addVariable(_variable: Variable): Unit = {
     addVariableValueSource(new AbstractVariableValueSource {
+
       override def variable: Variable = _variable
 
-      override def valueType: ValueType = _variable.valueType
+      override def valueType: ValueType = variable.valueType
 
-      override def getValue(valueSet: ValueSet): Value = values.get(valueSet.entity.identifier).get(_variable.name)
+      override def getValue(valueSet: ValueSet): Value = values.get(valueSet.entity.identifier).get(variable.name)
 
       override def supportVectorSource: Boolean = true
 
-      override def asVectorSource: VectorSource = ???
+      override def asVectorSource: VectorSource = new VectorSource {
+
+        override def valueType: ValueType = variable.valueType
+
+        override def getValues(entities: SortedSet[Entity]): Traversable[Value] = {
+          values.values
+            .map(_.get(variable.name)) // Iterable[Option[Value]]
+            .map(_.getOrElse(valueType.nullValue))
+        }
+      }
     })
   }
 

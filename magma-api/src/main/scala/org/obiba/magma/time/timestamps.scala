@@ -1,6 +1,6 @@
 package org.obiba.magma.time
 
-import java.time.Instant
+import java.time.{Clock, Instant}
 
 trait Timestamps {
 
@@ -10,11 +10,12 @@ trait Timestamps {
 
 }
 
-case class TimestampsBean(created: Instant = Instant.now(), private var _lastUpdate: Instant = null) extends Timestamps {
+case class TimestampsBean(created: Instant = Instant.now(), private var _lastUpdate: Instant = null)(implicit clock: Clock)
+  extends Timestamps {
 
   override def lastUpdate: Instant = _lastUpdate
 
-  def touch(): Unit = _lastUpdate = Instant.now()
+  def touch(): Unit = _lastUpdate = clock.instant()
 }
 
 trait Timestamped {

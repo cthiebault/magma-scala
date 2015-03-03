@@ -145,4 +145,23 @@ class StaticValueTableSpec extends UnitSpec {
     table.hasValueSet(ParticipantEntityBean("1")) should be(false)
     table.timestamps.lastUpdate should be > lastUpdate
   }
+
+  it can "have vectorSource" in {
+    val ds = new StaticDatasource("test")
+    val tableWriter = ds.createWriter("table", EntityType.Participant)
+    val table = ds.getTable("table").get
+    val variableWriter = tableWriter.writeVariables
+    variableWriter.writeVariable(VariableBean("variable1", EntityType.Participant, TextType))
+    val variable = table.getVariable("variable1").get
+
+    val valueSetWriter = tableWriter.writeValueSet(ParticipantEntityBean("1"))
+    valueSetWriter.writeValue(variable, "value 1".toTextValue)
+    valueSetWriter.writeValue(variable, "value 2".toTextValue)
+
+    val vectorSource: VectorSource = table.getVariableValueSource("variable1").get.asVectorSource
+    vectorSource should not be null
+    vectorSource.valueType should be(TextType)
+    vectorSource.getValues(TreeSet[Entity](ParticipantEntityBean("1"))) should have size (1)
+  }
+
 }
