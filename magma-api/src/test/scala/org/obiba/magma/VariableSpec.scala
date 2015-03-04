@@ -31,7 +31,7 @@ class VariableSpec extends UnitSpec {
     variable.addCategory(new CategoryBean("cat1", CategoryCode("1")))
 
     variable.hasCategories should be(true)
-    variable.categories should have size (1)
+    variable.categories should have size 1
     variable.getCategory("cat1") should be('defined)
     val category: Category = variable.getCategory("cat1").get
     category.name should be("cat1")
@@ -46,13 +46,13 @@ class VariableSpec extends UnitSpec {
     variable.addCategory(new CategoryBean("cat2", CategoryCode("2"), true))
 
     variable.hasCategories should be(true)
-    variable.categories should have size (2)
+    variable.categories should have size 2
     variable.areAllCategoriesMissing should be(true)
     variable.isMissingValue("1".toTextValue) should be(true)
 
     variable.addCategory(new CategoryBean("cat3", CategoryCode("3")))
 
-    variable.categories should have size (3)
+    variable.categories should have size 3
     variable.areAllCategoriesMissing should be(false)
     variable.isMissingValue(TextType.nullValue) should be(true)
     variable.isMissingValue("cat3".toTextValue) should be(false)

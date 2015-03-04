@@ -109,7 +109,7 @@ class StaticValueTableSpec extends UnitSpec {
     table.getValueSetTimestamps(ParticipantEntityBean("1")).get should not be null
     table.getValueSetTimestamps(ParticipantEntityBean("unknown")) should be('empty)
 
-    table.getValueSetTimestamps(TreeSet[Entity](ParticipantEntityBean("1"))) should have size (1)
+    table.getValueSetTimestamps(TreeSet[Entity](ParticipantEntityBean("1"))) should have size 1
 
     table.getValue(variable, valueSet) should be('defined)
     table.getValue(VariableBean("variable2", EntityType.Participant, TextType), valueSet) should be('empty)
@@ -161,7 +161,7 @@ class StaticValueTableSpec extends UnitSpec {
     val vectorSource: VectorSource = table.getVariableValueSource("variable1").get.asVectorSource
     vectorSource should not be null
     vectorSource.valueType should be(TextType)
-    vectorSource.getValues(TreeSet[Entity](ParticipantEntityBean("1"))) should have size (1)
+    vectorSource.getValues(TreeSet[Entity](ParticipantEntityBean("1"))) should have size 1
   }
 
 }

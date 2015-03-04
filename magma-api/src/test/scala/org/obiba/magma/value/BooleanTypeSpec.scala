@@ -20,10 +20,10 @@ class BooleanTypeSpec extends UnitSpec {
   }
 
   it should "support boolean input" in {
-    BooleanType.valueOf(FALSE).value.get should be(FALSE)
+    BooleanType.valueOf(FALSE).get.value.get should be(FALSE)
   }
   it should "support value input" in {
-    BooleanType.valueOf(BooleanType.valueOf("true")).value.get should be(TRUE)
+    BooleanType.valueOf(BooleanType.valueOf("true").get).get.value.get should be(TRUE)
   }
 
   it should "throw exception for invalid boolean" in {

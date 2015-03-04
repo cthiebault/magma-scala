@@ -1,13 +1,12 @@
 package org.obiba.magma.value
 
-import java.text.SimpleDateFormat
-import java.time.format.{ResolverStyle, DateTimeFormatter}
-import java.time.{Duration, Period, LocalDateTime, LocalDate}
+import java.time.format.{DateTimeFormatter, ResolverStyle}
+import java.time.{Duration, LocalDateTime}
 import java.util.{Calendar, Date}
 
-import org.obiba.magma.utils.DateConverters.{CalendarConverters, DateConverters, LocalDateConverters}
+import org.obiba.magma.UnitSpec
+import org.obiba.magma.utils.DateConverters.{CalendarConverters, DateConverters}
 import org.obiba.magma.value.ValueConverters.StringConverters
-import org.obiba.magma.{MagmaRuntimeException, UnitSpec}
 
 class DateTimeTypeSpec extends UnitSpec {
 
@@ -22,37 +21,34 @@ class DateTimeTypeSpec extends UnitSpec {
   DateTimeType.SUPPORTED_FORMATS_PATTERNS.foreach(testPattern)
 
   it should "not support unknown pattern" in {
-    val thrown = the[MagmaRuntimeException] thrownBy {
-      DateTimeType.valueOf("1 janvier 2015")
-    }
-    thrown.getMessage should startWith("Cannot parse datetime from string value")
+    DateTimeType.valueOf("1 janvier 2015") should be('empty)
   }
 
   it should "have no value for null param" in {
-    val nullValue: Value = DateTimeType.valueOf(null)
+    val nullValue: Value = DateTimeType.valueOf(null).get
     nullValue.value should be(None)
     DateTimeType.toString(nullValue) should be(null)
   }
 
   it can "be built from Date" in {
     val now: Date = new Date
-    DateTimeType.valueOf(now).value.get should be(now.toLocalDateTime)
+    DateTimeType.valueOf(now).get.value.get should be(now.toLocalDateTime)
   }
 
   it can "be built from Calendar" in {
     val calendar: Calendar = Calendar.getInstance
-    DateTimeType.valueOf(calendar).value.get should be(calendar.toLocalDateTime)
+    DateTimeType.valueOf(calendar).get.value.get should be(calendar.toLocalDateTime)
   }
 
   it can "be built from Value" in {
     val now: Value = DateTimeType.now
-    DateTimeType.valueOf(now).value.get should be(now.value.get)
-    DateTimeType.valueOf(now) should be(now)
+    DateTimeType.valueOf(now).get.value.get should be(now.value.get)
+    DateTimeType.valueOf(now).get should be(now)
   }
 
   it should "sort values" in {
-    DateTimeType.compare(DateTimeType.valueOf("2015/01/01 12:00"), DateTimeType.now) should be < 0
-    DateTimeType.compare(DateTimeType.valueOf("2015/01/01 12:00"), DateTimeType.valueOf("2014/01/01 12:00")) should be > 0
+    DateTimeType.compare(DateTimeType.valueOf("2015/01/01 12:00").get, DateTimeType.now) should be < 0
+    DateTimeType.compare(DateTimeType.valueOf("2015/01/01 12:00").get, DateTimeType.valueOf("2014/01/01 12:00").get) should be > 0
     DateTimeType.compare(DateTimeType.nullValue, DateTimeType.now) should be < 0
     DateTimeType.compare(DateTimeType.now, DateTimeType.now) should be(0)
     DateTimeType.compare(DateTimeType.nullValue, DateTimeType.nullValue) should be(0)

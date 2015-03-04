@@ -7,11 +7,11 @@ class ValueSpec extends UnitSpec {
 
   "A Value" should "be equals to same value" in {
     TextType.valueOf("test") should be(TextType.valueOf("test"))
-    "test".toTextValue should be(TextType.valueOf("test"))
+    "test".toTextValue should be(TextType.valueOf("test").get)
   }
 
   it should "have the right length for non null value" in {
-    TextType.valueOf("test").length should be(4)
+    TextType.valueOf("test").get.length should be(4)
   }
 
   it should "have 0 length for null value" in {

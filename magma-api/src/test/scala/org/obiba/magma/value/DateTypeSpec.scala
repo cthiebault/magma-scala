@@ -21,33 +21,30 @@ class DateTypeSpec extends UnitSpec {
   DateType.SUPPORTED_FORMATS_PATTERNS.foreach(testPattern)
 
   it should "not support unknown pattern" in {
-    val thrown = the[MagmaRuntimeException] thrownBy {
-      DateType.valueOf("1 janvier 2015")
-    }
-    thrown.getMessage should startWith("Cannot parse date from string value")
+    DateType.valueOf("1 janvier 2015") should be('empty)
   }
 
   it should "have no value for null param" in {
-    val nullValue: Value = DateType.valueOf(null)
+    val nullValue: Value = DateType.valueOf(null).get
     nullValue.value should be(None)
     DateType.toString(nullValue) should be(null)
   }
 
   it can "be built from Date" in {
-    DateType.valueOf(new Date()).value.get should be(LocalDate.now)
+    DateType.valueOf(new Date()).get.value.get should be(LocalDate.now)
   }
 
   it can "be built from Calendar" in {
-    DateType.valueOf(Calendar.getInstance()).value.get should be(LocalDate.now)
+    DateType.valueOf(Calendar.getInstance()).get.value.get should be(LocalDate.now)
   }
   
   it can "be built from Value" in {
-    DateType.valueOf(DateType.now).value.get should be(LocalDate.now)
+    DateType.valueOf(DateType.now).get.value.get should be(LocalDate.now)
   }
 
   it should "sort values" in {
-    DateType.compare(DateType.valueOf("2015/01/01"), DateType.now) should be < 0
-    DateType.compare(DateType.valueOf("2015/01/01"), DateType.valueOf("2014/01/01")) should be > 0
+    DateType.compare(DateType.valueOf("2015/01/01").get, DateType.now) should be < 0
+    DateType.compare(DateType.valueOf("2015/01/01").get, DateType.valueOf("2014/01/01").get) should be > 0
     DateType.compare(DateType.nullValue, DateType.now) should be < 0
     DateType.compare(DateType.now, DateType.now) should be(0)
     DateType.compare(DateType.nullValue, DateType.nullValue) should be(0)

@@ -5,17 +5,17 @@ object ValueConverters {
 
   implicit class StringConverters(val str: String) extends AnyVal {
 
-    def toTextValue: Value = TextType.valueOf(str)
+    def toTextValue: Value = TextType.valueOf(str).get
 
-    def toBooleanValue: Value = BooleanType.valueOf(str)
+    def toBooleanValue: Value = BooleanType.valueOf(str).get
 
-    def toDecimalValue: Value = DecimalType.valueOf(str)
+    def toDecimalValue: Value = DecimalType.valueOf(str).get
 
-    def toIntegerValue: Value = IntegerType.valueOf(str)
+    def toIntegerValue: Value = IntegerType.valueOf(str).get
 
-    def toDateValue: Value = DateType.valueOf(str)
+    def toDateValue: Value = DateType.valueOf(str).get
 
-    def toDateTimeValue: Value = DateTimeType.valueOf(str)
+    def toDateTimeValue: Value = DateTimeType.valueOf(str).get
 
   }
 

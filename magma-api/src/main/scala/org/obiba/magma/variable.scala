@@ -155,8 +155,11 @@ case class VariableBean private(
     if (value.isNull || !hasCategories) {
       value.isNull
     } else {
-      categories.map(c => valueType.valueOf(c.name) -> c)
+      categories
+        .map(c => valueType.valueOf(c.name) -> c)
         .toMap
+        .filterKeys(_.isDefined)
+        .map { case (option, cat) => (option.get, cat)}
         .get(value) match {
         case Some(c) => c.missing
         case _ => true

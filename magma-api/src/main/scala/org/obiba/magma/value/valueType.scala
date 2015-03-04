@@ -1,11 +1,10 @@
 package org.obiba.magma.value
 
-import java.time.format.{DateTimeFormatter, DateTimeParseException, ResolverStyle}
+import java.time.format.{DateTimeFormatter, ResolverStyle}
 import java.time.{LocalDate, LocalDateTime}
-import java.util.{Calendar, Comparator, Date, Locale, Base64}
+import java.util.{Base64, Calendar, Comparator, Date, Locale}
 
 import com.google.common.base.Strings
-import org.obiba.magma.MagmaRuntimeException
 import org.obiba.magma.logging.Slf4jLogging
 import org.obiba.magma.utils.DateConverters.{CalendarConverters, DateConverters}
 import org.obiba.magma.utils.StringUtils.StringsWrapper
@@ -19,11 +18,11 @@ sealed trait ValueType extends Comparator[Value] {
 
   def nullValue: Value
 
-  def valueOf(string: String): Value
+  def valueOf(string: String): Option[Value]
 
-  def valueOf(value: Any): Value
+  def valueOf(value: Any): Option[Value]
 
-  def valueOf(valueLoader: ValueLoader): Value
+  def valueOf(valueLoader: ValueLoader): Option[Value]
 
   def toString(value: Value): String
 
@@ -36,11 +35,11 @@ sealed trait ValueType extends Comparator[Value] {
 
 abstract class AbstractValueType extends ValueType {
 
-  def nullValue: Value = valueOf(null)
+  override def nullValue: Value = valueOf(null).get
 
-  def nullSequence: ValueSequence = sequenceOf(null)
+  override def nullSequence: ValueSequence = sequenceOf(null)
 
-  def toString(value: Value): String = {
+  override def toString(value: Value): String = {
     if (value == null) return null
     value.value match {
       case Some(v) => toString(v)
@@ -50,9 +49,9 @@ abstract class AbstractValueType extends ValueType {
 
   protected def toString(value: Any): String = value.toString
 
-  def valueOf(valueLoader: ValueLoader): Value = Value(this, valueLoader)
+  override def valueOf(valueLoader: ValueLoader): Option[Value] = Some(Value(this, valueLoader))
 
-  def sequenceOf(values: Traversable[Value]): ValueSequence = new ValueSequence(this, values)
+  override def sequenceOf(values: Traversable[Value]): ValueSequence = new ValueSequence(this, values)
 
   override def compare(o1: Value, o2: Value): Int = ValueComparator.compare(o1, o2)
 
@@ -60,12 +59,12 @@ abstract class AbstractValueType extends ValueType {
 
 object TextType extends AbstractValueType {
 
-  def name: String = "text"
+  override def name: String = "text"
 
-  def valueOf(string: String): Value = Value(this, new StaticValueLoader(string))
+  override def valueOf(string: String): Option[Value] = Some(Value(this, new StaticValueLoader(string)))
 
-  def valueOf(value: Any): Value = {
-    if (value == null) nullValue else valueOf(value.toString)
+  override def valueOf(value: Any): Option[Value] = {
+    if (value == null) Some(nullValue) else valueOf(value.toString)
   }
 
   override def compare(o1: Value, o2: Value): Int = {
@@ -84,26 +83,23 @@ object BooleanType extends AbstractValueType {
   private val TRUE: Value = Value(this, new StaticValueLoader(true))
   private val FALSE: Value = Value(this, new StaticValueLoader(false))
 
-  def name: String = "boolean"
+  override def name: String = "boolean"
 
-  def valueOf(string: String): Value = {
-    if (string.isNullOrEmpty) nullValue else valueOf(string.toBoolean)
+  override def valueOf(string: String): Option[Value] = {
+    if (string.isNullOrEmpty) Some(nullValue) else valueOf(string.toBoolean)
   }
 
-  def valueOf(value: Any): Value = {
-    if (value == null) {
-      nullValue
-    } else {
-      value match {
-        case b: Boolean => valueOf(b)
-        case _ => valueOf(value.toString)
-      }
+  override def valueOf(value: Any): Option[Value] = {
+    value match {
+      case null => Some(nullValue)
+      case b: Boolean => Some(valueOf(b))
+      case _ => valueOf(value.toString)
     }
   }
 
-  def trueValue: Value = valueOf("true")
+  def trueValue: Value = valueOf("true").get
 
-  def falseValue: Value = valueOf("false")
+  def falseValue: Value = valueOf("false").get
 
   private def valueOf(value: Boolean): Value = if (value) TRUE else FALSE
 
@@ -113,20 +109,17 @@ trait NumberType extends ValueType
 
 object DecimalType extends AbstractValueType with NumberType {
 
-  def name: String = "decimal"
+  override def name: String = "decimal"
 
-  def valueOf(string: String): Value = {
-    if (string.isNullOrEmpty) nullValue else valueOf(string.replaceAll(",", ".").trim.toDouble)
+  override def valueOf(string: String): Option[Value] = {
+    if (string.isNullOrEmpty) Some(nullValue) else valueOf(string.replaceAll(",", ".").trim.toDouble)
   }
 
-  def valueOf(value: Any): Value = {
-    if (value == null) {
-      nullValue
-    } else {
-      value match {
-        case n: Number => valueOf(n.doubleValue())
-        case _ => valueOf(value.toString)
-      }
+  override def valueOf(value: Any): Option[Value] = {
+    value match {
+      case null => Some(nullValue)
+      case n: Number => Some(valueOf(n.doubleValue()))
+      case _ => valueOf(value.toString)
     }
   }
 
@@ -137,20 +130,17 @@ object DecimalType extends AbstractValueType with NumberType {
 
 object IntegerType extends AbstractValueType with NumberType {
 
-  def name: String = "integer"
+  override def name: String = "integer"
 
-  def valueOf(string: String): Value = {
-    if (string.isNullOrEmpty) nullValue else valueOf(string.replaceAll(",", ".").trim.toInt)
+  override def valueOf(string: String): Option[Value] = {
+    if (string.isNullOrEmpty) Some(nullValue) else valueOf(string.replaceAll(",", ".").trim.toInt)
   }
 
-  def valueOf(value: Any): Value = {
-    if (value == null) {
-      nullValue
-    } else {
-      value match {
-        case n: Number => valueOf(n.intValue())
-        case _ => valueOf(value.toString)
-      }
+  override def valueOf(value: Any): Option[Value] = {
+    value match {
+      case null => Some(nullValue)
+      case n: Number => Some(valueOf(n.intValue()))
+      case _ => valueOf(value.toString)
     }
   }
 
@@ -181,17 +171,15 @@ object DateType extends AbstractValueType with Slf4jLogging {
    */
   private val SUPPORTED_FORMATS: List[DateTimeFormatter] = SUPPORTED_FORMATS_PATTERNS.map(formatter)
 
-  private val SUPPORTED_FORMATS_PATTERN: String = SUPPORTED_FORMATS_PATTERNS.mkString(", ")
-
   private def formatter(pattern: String): DateTimeFormatter = {
     DateTimeFormatter.ofPattern(pattern).withResolverStyle(ResolverStyle.LENIENT)
   }
 
   override def name: String = "date"
 
-  override def valueOf(string: String): Value = {
+  override def valueOf(string: String): Option[Value] = {
     if (string == null) {
-      nullValue
+      Some(nullValue)
     } else {
       // TODO should not iterate on every format but return on the first success
       SUPPORTED_FORMATS
@@ -199,9 +187,6 @@ object DateType extends AbstractValueType with Slf4jLogging {
         .filter(_.isSuccess)
         .map(_.get)
         .headOption
-        .getOrElse(
-          throw new MagmaRuntimeException(
-            s"Cannot parse date from string value '$string'. Expected format is one of $SUPPORTED_FORMATS_PATTERN"))
     }
   }
 
@@ -211,13 +196,13 @@ object DateType extends AbstractValueType with Slf4jLogging {
 
   private def valueOf(localDate: LocalDate): Value = Value(this, new StaticValueLoader(localDate))
 
-  override def valueOf(any: Any): Value = {
+  override def valueOf(any: Any): Option[Value] = {
     any match {
-      case null => nullValue
-      case d: Date => valueOf(d.toLocalDate)
-      case c: Calendar => valueOf(c.toLocalDate)
+      case null => Some(nullValue)
+      case d: Date => Some(valueOf(d.toLocalDate))
+      case c: Calendar => Some(valueOf(c.toLocalDate))
       case s: String => valueOf(s)
-      case v: Value => if (v.isNull) nullValue else valueOf(v.value.get)
+      case v: Value => if (v.isNull) Some(nullValue) else valueOf(v.value.get)
       case _ => valueOf(any.toString)
     }
   }
@@ -253,17 +238,15 @@ object DateTimeType extends AbstractValueType with Slf4jLogging {
    */
   private val SUPPORTED_FORMATS: List[DateTimeFormatter] = SUPPORTED_FORMATS_PATTERNS.map(formatter)
 
-  private val SUPPORTED_FORMATS_PATTERN: String = SUPPORTED_FORMATS_PATTERNS.mkString(", ")
-
   private def formatter(pattern: String): DateTimeFormatter = {
     DateTimeFormatter.ofPattern(pattern).withResolverStyle(ResolverStyle.LENIENT)
   }
 
   override def name: String = "datetime"
 
-  override def valueOf(string: String): Value = {
+  override def valueOf(string: String): Option[Value] = {
     if (string == null) {
-      nullValue
+      Some(nullValue)
     } else {
       // TODO should not iterate on every format but return on the first success
       SUPPORTED_FORMATS
@@ -271,9 +254,6 @@ object DateTimeType extends AbstractValueType with Slf4jLogging {
         .filter(_.isSuccess)
         .map(_.get)
         .headOption
-        .getOrElse(
-          throw new MagmaRuntimeException(
-            s"Cannot parse datetime from string value '$string'. Expected format is one of $SUPPORTED_FORMATS_PATTERN"))
     }
   }
 
@@ -283,13 +263,13 @@ object DateTimeType extends AbstractValueType with Slf4jLogging {
 
   private def valueOf(localDateTime: LocalDateTime): Value = Value(this, new StaticValueLoader(localDateTime))
 
-  override def valueOf(any: Any): Value = {
+  override def valueOf(any: Any): Option[Value] = {
     any match {
-      case null => nullValue
-      case d: Date => valueOf(d.toLocalDateTime)
-      case c: Calendar => valueOf(c.toLocalDateTime)
+      case null => Some(nullValue)
+      case d: Date => Some(valueOf(d.toLocalDateTime))
+      case c: Calendar => Some(valueOf(c.toLocalDateTime))
       case s: String => valueOf(s)
-      case v: Value => if (v.isNull) nullValue else valueOf(v.value.get)
+      case v: Value => if (v.isNull) Some(nullValue) else valueOf(v.value.get)
       case _ => valueOf(any.toString)
     }
   }
@@ -302,65 +282,54 @@ object DateTimeType extends AbstractValueType with Slf4jLogging {
 
 object LocaleType extends AbstractValueType {
 
-  def name: String = "locale"
+  override def name: String = "locale"
 
-  def valueOf(string: String): Value = {
+  override def valueOf(string: String): Option[Value] = {
     if (string.isNullOrEmpty) {
-      return nullValue
+      Some(nullValue)
+    } else {
+      val parts = string.split("_")
+      parts.length match {
+        case 1 => Some(Value(this, new StaticValueLoader(new Locale(parts(0)))))
+        case 2 => Some(Value(this, new StaticValueLoader(new Locale(parts(0), parts(1)))))
+        case 3 => Some(Value(this, new StaticValueLoader(new Locale(parts(0), parts(1), parts(2)))))
+        case _ => None
+      }
     }
-    val parts = string.split("_")
-    var locale: Locale = null
-    parts.length match {
-      case 1 =>
-        locale = new Locale(parts(0))
-      case 2 =>
-        locale = new Locale(parts(0), parts(1))
-      case 3 =>
-        locale = new Locale(parts(0), parts(1), parts(2))
-      case _ =>
-        throw new IllegalArgumentException("Invalid locale string " + string)
-    }
-    Value(this, new StaticValueLoader(locale))
   }
 
-  def valueOf(value: Any): Value = {
-    if (value == null) {
-      return nullValue
+  override def valueOf(value: Any): Option[Value] = {
+    value match {
+      case null => Some(nullValue)
+      case l: Locale => Some(Value(this, new StaticValueLoader(l)))
+      case s: String => valueOf(s)
+      case _ => None
     }
-    if (classOf[Locale].isAssignableFrom(value.getClass)) {
-      return Value(this, new StaticValueLoader(value))
-    }
-    if (classOf[String].isAssignableFrom(value.getClass)) {
-      return valueOf(value.asInstanceOf[String])
-    }
-    throw new IllegalArgumentException("Cannot construct " + getClass.getSimpleName + " from type " + value.getClass + ".")
   }
 
 }
 
 object BinaryType extends AbstractValueType {
 
-  def name: String = "binary"
+  override def name: String = "binary"
 
-  def valueOf(string: String): Value = {
+  override def valueOf(string: String): Option[Value] = {
     if (string.isNullOrEmpty) {
-      return nullValue
+      Some(nullValue)
+    } else {
+      Some(Value(this, new StaticValueLoader(Base64.getDecoder.decode(string))))
     }
-    Value(this, new StaticValueLoader(Base64.getDecoder.decode(string)))
   }
 
-  def valueOf(value: Any): Value = {
-    if (value == null) {
-      return nullValue
+  override def valueOf(value: Any): Option[Value] = {
+    value match {
+      case null => Some(nullValue)
+      case a: Array[Byte] => Some(Value(this, new StaticValueLoader(a)))
+      case s: String => valueOf(s)
+      case _ => None
     }
-    if (classOf[Array[Byte]].isAssignableFrom(value.getClass)) {
-      return Value(this, new StaticValueLoader(value))
-    }
-    if (classOf[String].isAssignableFrom(value.getClass)) {
-      return valueOf(value.asInstanceOf[String])
-    }
-    throw new IllegalArgumentException("Cannot construct " + getClass.getSimpleName + " from type " + value.getClass + ".")
   }
+
 }
 
 //object PointType extends AbstractValueType {
