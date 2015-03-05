@@ -4,7 +4,7 @@ import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.util.{Calendar, Date}
 
-import org.obiba.magma.value.ValueConverters.StringConverters
+import org.obiba.magma.value.JavaObjToValueConverters.StringConverters
 import org.obiba.magma.{MagmaRuntimeException, UnitSpec}
 import org.obiba.magma.utils.DateConverters.LocalDateConverters
 

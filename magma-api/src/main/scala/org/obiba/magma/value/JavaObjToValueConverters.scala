@@ -1,7 +1,7 @@
 package org.obiba.magma.value
 
 // pimp my library :)
-object ValueConverters {
+object JavaObjToValueConverters {
 
   implicit class StringConverters(val str: String) extends AnyVal {
 

@@ -3,7 +3,7 @@ package org.obiba.magma.value
 import java.lang.Boolean._
 
 import org.obiba.magma.UnitSpec
-import org.obiba.magma.value.ValueConverters.StringConverters
+import org.obiba.magma.value.JavaObjToValueConverters.StringConverters
 
 class BooleanTypeSpec extends UnitSpec {
 

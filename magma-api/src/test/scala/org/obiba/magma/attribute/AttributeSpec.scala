@@ -3,7 +3,7 @@ package org.obiba.magma.attribute
 import java.util.Locale.{ENGLISH, FRENCH, GERMAN}
 
 import org.obiba.magma.UnitSpec
-import org.obiba.magma.value.ValueConverters.StringConverters
+import org.obiba.magma.value.JavaObjToValueConverters.StringConverters
 
 class AttributeSpec extends UnitSpec {
 

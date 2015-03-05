@@ -3,7 +3,7 @@ package org.obiba.magma.staticds
 import org.obiba.magma.UnitSpec
 import org.obiba.magma.attribute._
 import org.obiba.magma.entity.EntityType
-import org.obiba.magma.value.ValueConverters.StringConverters
+import org.obiba.magma.value.JavaObjToValueConverters.StringConverters
 
 class StaticDatasourceSpec extends UnitSpec {
 

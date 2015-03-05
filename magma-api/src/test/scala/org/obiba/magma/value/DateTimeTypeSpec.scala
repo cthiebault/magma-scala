@@ -6,7 +6,7 @@ import java.util.{Calendar, Date}
 
 import org.obiba.magma.UnitSpec
 import org.obiba.magma.utils.DateConverters.{CalendarConverters, DateConverters}
-import org.obiba.magma.value.ValueConverters.StringConverters
+import org.obiba.magma.value.JavaObjToValueConverters.StringConverters
 
 class DateTimeTypeSpec extends UnitSpec {
 

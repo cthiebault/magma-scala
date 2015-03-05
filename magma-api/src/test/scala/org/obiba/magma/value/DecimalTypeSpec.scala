@@ -1,7 +1,7 @@
 package org.obiba.magma.value
 
 import org.obiba.magma.UnitSpec
-import org.obiba.magma.value.ValueConverters.StringConverters
+import org.obiba.magma.value.JavaObjToValueConverters.StringConverters
 
 class DecimalTypeSpec extends UnitSpec {
 

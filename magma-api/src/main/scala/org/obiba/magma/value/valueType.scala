@@ -1,11 +1,10 @@
 package org.obiba.magma.value
 
 import java.time.format.{DateTimeFormatter, ResolverStyle}
-import java.time.{LocalDate, LocalDateTime}
+import java.time.{LocalDate, LocalDateTime, LocalTime}
 import java.util.{Base64, Calendar, Comparator, Date, Locale}
 
 import com.google.common.base.Strings
-import org.obiba.magma.logging.Slf4jLogging
 import org.obiba.magma.utils.DateConverters.{CalendarConverters, DateConverters}
 import org.obiba.magma.utils.StringUtils.StringsWrapper
 import org.obiba.magma.value.ValueLoader.StaticValueLoader
@@ -30,7 +29,36 @@ sealed trait ValueType extends Comparator[Value] {
 
   def sequenceOf(values: Traversable[Value]): ValueSequence
 
-  //    def convert(value: Value): Value
+  def convert(value: Value): Option[Value]
+
+  /**
+   * Returns true if this type represents a date, time or both.
+   *
+   * @return if this type represents a date, time or both.
+   */
+  def isDateTime: Boolean
+
+  /**
+   * Returns true if this type represents a number.
+   *
+   * @return true if this type represents a number
+   */
+  def isNumeric: Boolean
+
+  /**
+   * Returns true if this type represents a geolocalisation.
+   *
+   * @return true if this type represents a geolocalisation
+   */
+  def isGeo: Boolean
+
+  /**
+   * Returns true if this type represents a binary.
+   *
+   * @return true if this type represents a binary
+   */
+  def isBinary: Boolean
+
 }
 
 abstract class AbstractValueType extends ValueType {
@@ -40,10 +68,13 @@ abstract class AbstractValueType extends ValueType {
   override def nullSequence: ValueSequence = sequenceOf(null)
 
   override def toString(value: Value): String = {
-    if (value == null) return null
-    value.value match {
-      case Some(v) => toString(v)
-      case None => null
+    if (value == null) {
+      null
+    } else {
+      value.value match {
+        case Some(v) => toString(v)
+        case None => null
+      }
     }
   }
 
@@ -53,7 +84,33 @@ abstract class AbstractValueType extends ValueType {
 
   override def sequenceOf(values: Traversable[Value]): ValueSequence = new ValueSequence(this, values)
 
+  override def convert(value: Value): Option[Value] = {
+    if (this == value.valueType) {
+      Some(value)
+    }
+    else if (value.isNull) {
+      value match {
+        case s: ValueSequence => Some(nullSequence)
+        case _ => Some(nullValue)
+      }
+    }
+    else {
+      ValueConverter.findConverter(value.valueType, this) match {
+        case Some(c) => c.convert(value, this)
+        case _ => None
+      }
+    }
+  }
+
   override def compare(o1: Value, o2: Value): Int = ValueComparator.compare(o1, o2)
+
+  override def isDateTime: Boolean = false
+
+  override def isNumeric: Boolean = false
+
+  override def isGeo: Boolean = false
+
+  override def isBinary: Boolean = false
 
 }
 
@@ -105,7 +162,9 @@ object BooleanType extends AbstractValueType {
 
 }
 
-trait NumberType extends ValueType
+trait NumberType extends ValueType {
+  override def isNumeric: Boolean = true
+}
 
 object DecimalType extends AbstractValueType with NumberType {
 
@@ -149,7 +208,11 @@ object IntegerType extends AbstractValueType with NumberType {
   }
 }
 
-object DateType extends AbstractValueType with Slf4jLogging {
+trait TemporalType extends ValueType {
+  override def isDateTime: Boolean = true
+}
+
+object DateType extends AbstractValueType with TemporalType {
 
   protected[value] val SUPPORTED_FORMATS_PATTERNS = List(
     "yyyy-MM-dd", // preferred one: ISO_8601
@@ -200,6 +263,8 @@ object DateType extends AbstractValueType with Slf4jLogging {
     any match {
       case null => Some(nullValue)
       case d: Date => Some(valueOf(d.toLocalDate))
+      case ld: LocalDate => Some(valueOf(ld))
+      case ldt: LocalDateTime => Some(valueOf(ldt.toLocalDate))
       case c: Calendar => Some(valueOf(c.toLocalDate))
       case s: String => valueOf(s)
       case v: Value => if (v.isNull) Some(nullValue) else valueOf(v.value.get)
@@ -211,9 +276,11 @@ object DateType extends AbstractValueType with Slf4jLogging {
 
   def now: Value = valueOf(LocalDate.now)
 
+  override def isDateTime: Boolean = true
+
 }
 
-object DateTimeType extends AbstractValueType with Slf4jLogging {
+object DateTimeType extends AbstractValueType with TemporalType {
 
   protected[value] val SUPPORTED_FORMATS_PATTERNS = List(
     "yyyy-MM-dd'T'HH:mm:ss.SSS", // preferred one: ISO_8601
@@ -267,6 +334,8 @@ object DateTimeType extends AbstractValueType with Slf4jLogging {
     any match {
       case null => Some(nullValue)
       case d: Date => Some(valueOf(d.toLocalDateTime))
+      case ld: LocalDate => Some(valueOf(LocalDateTime.of(ld, LocalTime.of(0, 0))))
+      case ldt: LocalDateTime => Some(valueOf(ldt))
       case c: Calendar => Some(valueOf(c.toLocalDateTime))
       case s: String => valueOf(s)
       case v: Value => if (v.isNull) Some(nullValue) else valueOf(v.value.get)
@@ -329,6 +398,8 @@ object BinaryType extends AbstractValueType {
       case _ => None
     }
   }
+
+  override def isBinary: Boolean = true
 
 }
 

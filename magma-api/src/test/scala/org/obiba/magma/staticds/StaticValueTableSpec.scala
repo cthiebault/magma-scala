@@ -5,7 +5,7 @@ import java.time.Instant
 import org.obiba.magma._
 import org.obiba.magma.entity._
 import org.obiba.magma.value.TextType
-import org.obiba.magma.value.ValueConverters.StringConverters
+import org.obiba.magma.value.JavaObjToValueConverters.StringConverters
 
 import scala.collection.immutable.TreeSet
 
