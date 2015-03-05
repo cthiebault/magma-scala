@@ -63,9 +63,12 @@ sealed trait ValueType extends Comparator[Value] {
 
 abstract class AbstractValueType extends ValueType {
 
-  override def nullValue: Value = valueOf(null).get
+  private val NULL_VALUE: Value = Value(this, new StaticValueLoader(null))
+  private val NULL_VALUE_SEQUENCE: ValueSequence = sequenceOf(null)
 
-  override def nullSequence: ValueSequence = sequenceOf(null)
+  override def nullValue: Value = NULL_VALUE
+
+  override def nullSequence: ValueSequence = NULL_VALUE_SEQUENCE
 
   override def toString(value: Value): String = {
     if (value == null) {

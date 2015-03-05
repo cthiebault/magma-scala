@@ -32,4 +32,14 @@ class DatetimeValueConverterSpec extends UnitSpec {
     localDate.getDayOfMonth should be(1)
   }
 
+  it should "support null value" in {
+    DatetimeValueConverter.convert(DateType.nullValue, DateTimeType).get should be(DateTimeType.nullValue)
+    DatetimeValueConverter.convert(DateTimeType.nullValue, DateType).get should be(DateType.nullValue)
+  }
+
+  it should "support null sequence" in {
+    DatetimeValueConverter.convert(DateType.nullSequence, DateTimeType).get should be(DateTimeType.nullSequence)
+    DatetimeValueConverter.convert(DateTimeType.nullSequence, DateType).get should be(DateType.nullSequence)
+  }
+
 }

@@ -18,6 +18,14 @@ class NumericValueConverterSpec extends UnitSpec {
     NumericValueConverter.convert("10".toIntegerValue, DecimalType).get should be("10".toDecimalValue)
   }
 
+  it should "support null value" in {
+    NumericValueConverter.convert(IntegerType.nullValue, DecimalType).get should be(DecimalType.nullValue)
+  }
+
+  it should "support null sequence" in {
+    NumericValueConverter.convert(IntegerType.nullSequence, DecimalType).get should be(DecimalType.nullSequence)
+  }
+
   it should "convert decimal to int" in {
     NumericValueConverter.convert("10".toDecimalValue, IntegerType).get should be("10".toIntegerValue)
     NumericValueConverter.convert("10.1".toDecimalValue, IntegerType).get should be("10".toIntegerValue)

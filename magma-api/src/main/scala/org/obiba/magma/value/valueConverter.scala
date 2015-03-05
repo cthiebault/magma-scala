@@ -118,7 +118,11 @@ object TextToNumericValueConverter extends ValueConverter {
   }
 
   override def convert(value: Value, to: ValueType): Option[Value] = {
-    to.valueOf(new BigDecimal(value.toString))
+    if (value.isNull) {
+      Some(to.nullValue)
+    } else {
+      to.valueOf(new BigDecimal(value.toString))
+    }
   }
 
 }

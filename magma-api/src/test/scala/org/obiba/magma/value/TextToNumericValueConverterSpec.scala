@@ -23,4 +23,14 @@ class TextToNumericValueConverterSpec extends UnitSpec {
     TextToNumericValueConverter.convert("10".toTextValue, IntegerType).get should be("10".toIntegerValue)
   }
 
+  it should "support null value" in {
+    TextToNumericValueConverter.convert(TextType.nullValue, IntegerType).get should be(IntegerType.nullValue)
+    TextToNumericValueConverter.convert(TextType.nullValue, DecimalType).get should be(DecimalType.nullValue)
+  }
+
+  it should "support null sequence" in {
+    TextToNumericValueConverter.convert(TextType.nullSequence, IntegerType).get should be(IntegerType.nullSequence)
+    TextToNumericValueConverter.convert(TextType.nullSequence, DecimalType).get should be(DecimalType.nullSequence)
+  }
+
 }

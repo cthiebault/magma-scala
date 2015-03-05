@@ -1,7 +1,5 @@
 package org.obiba.magma.value
 
-import java.util.Comparator
-
 import com.google.common.collect.ComparisonChain
 
 class Value(val valueType: ValueType, private val valueLoader: ValueLoader) {
