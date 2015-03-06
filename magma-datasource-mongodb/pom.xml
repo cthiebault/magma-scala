@@ -10,14 +10,29 @@
     <relativePath>..</relativePath>
   </parent>
 
-  <artifactId>magma-api</artifactId>
+  <artifactId>magma-datasource-mongodb</artifactId>
   <version>0.1-SNAPSHOT</version>
 
   <dependencies>
     <dependency>
       <groupId>org.obiba.magma</groupId>
+      <artifactId>magma-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.obiba.magma</groupId>
       <artifactId>magma-test</artifactId>
     </dependency>
+
+    <dependency>
+      <groupId>org.mongodb</groupId>
+      <artifactId>casbah-core_${scala.tools.version}</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpclient</artifactId>
+    </dependency>
+
   </dependencies>
 
 </project>

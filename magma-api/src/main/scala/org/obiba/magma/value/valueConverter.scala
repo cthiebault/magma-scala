@@ -43,7 +43,7 @@ object ValueConverter {
       DatetimeValueConverter,
       AnyToTextValueConverter,
       TextToNumericValueConverter,
-      TextToAnyTypeValueConverter
+      TextToAnyValueConverter
     )
   }
 
@@ -103,7 +103,7 @@ object AnyToTextValueConverter extends ValueConverter {
 
 }
 
-object TextToAnyTypeValueConverter extends ValueConverter {
+object TextToAnyValueConverter extends ValueConverter {
 
   override def converts(from: ValueType, to: ValueType): Boolean = from eq TextType
 

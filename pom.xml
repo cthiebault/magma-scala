@@ -9,6 +9,9 @@
 
   <modules>
     <module>magma-api</module>
+    <module>magma-datasource-static</module>
+    <module>magma-datasource-mongodb</module>
+    <module>magma-test</module>
   </modules>
 
   <properties>
@@ -23,34 +26,94 @@
     <dependency>
       <groupId>org.scala-lang</groupId>
       <artifactId>scala-library</artifactId>
-      <version>${scala.version}</version>
     </dependency>
 
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
-      <version>18.0</version>
     </dependency>
 
+    <!-- logging -->
     <dependency>
       <groupId>com.typesafe.scala-logging</groupId>
-      <artifactId>scala-logging_2.11</artifactId>
-      <version>3.1.0</version>
+      <artifactId>scala-logging_${scala.tools.version}</artifactId>
     </dependency>
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
-      <version>1.1.2</version>
     </dependency>
 
     <!-- Test -->
     <dependency>
       <groupId>org.scalatest</groupId>
       <artifactId>scalatest_${scala.tools.version}</artifactId>
-      <version>2.2.4</version>
       <scope>test</scope>
     </dependency>
+
   </dependencies>
+
+  <dependencyManagement>
+    <dependencies>
+
+      <dependency>
+        <groupId>org.obiba.magma</groupId>
+        <artifactId>magma-api</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.obiba.magma</groupId>
+        <artifactId>magma-test</artifactId>
+        <version>${project.version}</version>
+        <scope>test</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.scala-lang</groupId>
+        <artifactId>scala-library</artifactId>
+        <version>${scala.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.google.guava</groupId>
+        <artifactId>guava</artifactId>
+        <version>18.0</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.typesafe.scala-logging</groupId>
+        <artifactId>scala-logging_${scala.tools.version}</artifactId>
+        <version>3.1.0</version>
+      </dependency>
+      <dependency>
+        <groupId>ch.qos.logback</groupId>
+        <artifactId>logback-classic</artifactId>
+        <version>1.1.2</version>
+        <scope>test</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.scalatest</groupId>
+        <artifactId>scalatest_${scala.tools.version}</artifactId>
+        <version>2.2.4</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.mongodb</groupId>
+        <artifactId>casbah-core_${scala.tools.version}</artifactId>
+        <version>2.8.0</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.httpcomponents</groupId>
+        <artifactId>httpclient</artifactId>
+        <version>4.4</version>
+      </dependency>
+
+
+    </dependencies>
+
+  </dependencyManagement>
 
   <build>
     <sourceDirectory>src/main/scala</sourceDirectory>

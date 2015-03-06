@@ -61,6 +61,23 @@ sealed trait ValueType extends Comparator[Value] {
 
 }
 
+object ValueType {
+
+  def types(): Traversable[ValueType] = {
+    List(
+      TextType,
+      BooleanType,
+      DecimalType,
+      IntegerType,
+      DateType,
+      DateTimeType,
+      LocaleType,
+      BinaryType
+    )
+  }
+
+}
+
 abstract class AbstractValueType extends ValueType {
 
   private val NULL_VALUE: Value = Value(this, new StaticValueLoader(null))

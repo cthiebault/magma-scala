@@ -2,7 +2,6 @@ package org.obiba.magma.value
 
 import org.obiba.magma.UnitSpec
 import org.obiba.magma.value.JavaObjToValueConverters.StringConverters
-import org.obiba.magma.value.TextToNumericValueConverter
 
 class TextToNumericValueConverterSpec extends UnitSpec {
 

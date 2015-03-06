@@ -1,4 +1,4 @@
-package org.obiba.magma.staticds
+package org.obiba.magma.datasource.staticds
 
 import java.time.Clock
 

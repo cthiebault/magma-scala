@@ -1,10 +1,11 @@
-package org.obiba.magma.staticds
+package org.obiba.magma.datasource.staticds
 
 import java.time.Clock
 
 import org.obiba.magma._
 import org.obiba.magma.attribute.ListAttributeWriter
 import org.obiba.magma.entity.{Entity, EntityType}
+import org.obiba.magma.time.{UnionTimestamps, Timestamps}
 import org.obiba.magma.value.Value
 
 class StaticDatasource(override var name: String)(implicit clock: Clock) extends AbstractDatasource with ListAttributeWriter {
@@ -82,6 +83,8 @@ class StaticDatasource(override var name: String)(implicit clock: Clock) extends
     override def close(): Unit = {}
 
   }
+
+  override def timestamps: Timestamps = UnionTimestamps(tables)
 
 }
 

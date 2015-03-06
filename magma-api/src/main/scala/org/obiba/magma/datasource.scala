@@ -2,8 +2,9 @@ package org.obiba.magma
 
 import org.obiba.magma.attribute.AttributeWriter
 import org.obiba.magma.entity.EntityType
+import org.obiba.magma.time.Timestamped
 
-trait Datasource extends AttributeWriter with Initialisable with Droppable {
+trait Datasource extends Timestamped with AttributeWriter with Initialisable with Droppable with Disposable {
 
   var name: String
 
@@ -34,4 +35,6 @@ abstract class AbstractDatasource extends Datasource {
   override def getTable(tableName: String): Option[ValueTable] = tables.find(t => t.name == name)
 
   override def hasTable(tableName: String): Boolean = getTable(tableName).isDefined
+
+  override def dispose(): Unit = {}
 }

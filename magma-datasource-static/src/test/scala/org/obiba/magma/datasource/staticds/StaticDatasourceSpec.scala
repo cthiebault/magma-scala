@@ -1,4 +1,4 @@
-package org.obiba.magma.staticds
+package org.obiba.magma.datasource.staticds
 
 import org.obiba.magma.UnitSpec
 import org.obiba.magma.attribute._
