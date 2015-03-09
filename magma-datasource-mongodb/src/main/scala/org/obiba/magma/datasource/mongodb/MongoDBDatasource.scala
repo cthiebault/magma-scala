@@ -1,7 +1,7 @@
 
 package org.obiba.magma.datasource.mongodb
 
-import java.time.{Clock, Instant, LocalDateTime}
+import java.time.Clock
 import java.util.Locale
 
 import com.mongodb.casbah._
@@ -9,80 +9,90 @@ import com.mongodb.casbah.commons.Imports._
 import com.mongodb.casbah.commons.MongoDBObject
 import org.obiba.magma.attribute.Attribute
 import org.obiba.magma.entity.EntityType
-import org.obiba.magma.time.{Timestamped, Timestamps, UnionTimestamps}
-import org.obiba.magma.{AbstractDatasource, ValueTable, ValueTableWriter}
+import org.obiba.magma.logging.Slf4jLogging
+import org.obiba.magma.time.{Timestamps, UnionTimestamps}
+import org.obiba.magma.{ValueTable, AbstractDatasource, ValueTableWriter}
 
-class MongoDBDatasource(override val name: String, private val mongoDBFactory: MongoDBFactory)(implicit clock: Clock)
-  extends AbstractDatasource {
+class MongoDBDatasource(override val name: String, protected[mongodb] val mongoDBFactory: MongoDBFactory)(implicit clock: Clock)
+  extends AbstractDatasource with Slf4jLogging {
 
-  private val DATASOURCE_COLLECTION = "datasource"
+  private[mongodb] val DATASOURCE_COLLECTION = "datasource"
   private val TABLE_COLLECTION = "value_table"
 
   private val NAME_FIELD = "name"
   private val DATASOURCE_FIELD = "datasource"
-  private val CREATED_FIELD = "created"
-  private val UPDATE_FIELD = "update"
-  private val TIMESTAMPS_FIELD = "_timestamps"
 
-  private lazy val dBObject: DBObject = {
-    datasourceCollection()
+  protected[mongodb] lazy val dBObject: DBObject = {
+    val obj = datasourceCollection()
       .findOne(MongoDBObject(NAME_FIELD -> name))
       .getOrElse(insert())
+    logger.debug("dBObject: {}", obj)
+    obj
   }
+
+  private def dsTimestamps(): MongoDBTimestamps = new MongoDBTimestamps(dBObject)
 
   private def insert(): DBObject = {
     val mongoDBObject: DBObject = MongoDBObject(
       NAME_FIELD -> name,
-      TIMESTAMPS_FIELD -> createTimestampsObject()
+      MongoDBTimestamps.TIMESTAMPS_FIELD -> MongoDBTimestamps.createTimestampsObject()
     )
     //TODO ensure index on name exists
     datasourceCollection().insert(mongoDBObject, WriteConcern.Acknowledged)
     mongoDBObject
   }
 
-  private def datasourceCollection(): MongoCollection = {
+  private[mongodb] def datasourceCollection(): MongoCollection = {
     mongoDBFactory.execute(new MongoDBCallback[MongoCollection] {
       override def doWithDB(db: Imports.MongoDB): MongoCollection = db(DATASOURCE_COLLECTION)
     })
   }
 
-  private def tableCollection(): MongoCollection = {
+  protected[mongodb] def tableCollection(): MongoCollection = {
     //TODO ensure indexes on name & datasource exists
     mongoDBFactory.execute(new MongoDBCallback[MongoCollection] {
       override def doWithDB(db: Imports.MongoDB): MongoCollection = db(TABLE_COLLECTION)
     })
   }
 
-  private def createTimestampsObject(): DBObject = {
-    val now: LocalDateTime = LocalDateTime.now(clock)
-    MongoDBObject(CREATED_FIELD -> now, UPDATE_FIELD -> now)
-  }
-
   override def `type`: String = "mongodb"
 
-  override def canDropTable(tableName: String): Boolean = ???
-
-  override def tables: Set[ValueTable] = ???
+  override def canDropTable(tableName: String): Boolean = hasTable(tableName)
 
   override def hasEntities(predicate: (ValueTable) => Boolean): Boolean = ???
 
-  override def canRenameTable(tableName: String): Boolean = ???
+  override def canRenameTable(tableName: String): Boolean = hasTable(tableName)
 
-  override def renameTable(tableName: String, newName: String): Unit = ???
+  override def getTable(tableName: String): Option[MongoDBValueTable] = {
+    super.getTable(tableName).asInstanceOf[Option[MongoDBValueTable]]
+  }
 
-  override def dropTable(tableName: String): Unit = ???
+  override def renameTable(tableName: String, newName: String): Unit = {
+    if (hasTable(tableName)) {
+      getTable(tableName).get.rename(newName)
+    }
+  }
 
-  override def createWriter(tableName: String, entityType: EntityType): ValueTableWriter = ???
+  override def dropTable(tableName: String): Unit = {
+    if (hasTable(tableName)) {
+      val table: MongoDBValueTable = getTable(tableName).get
+      table.drop()
+      removeTable(table)
+      setLastUpdate()
+    }
+  }
 
-  override def addAttribute(attribute: Attribute): Unit = ???
+  override def createWriter(tableName: String, entityType: EntityType): ValueTableWriter = {
+    new MongoDBValueTableWriter(getTable(tableName).getOrElse(createAndAddTable(tableName)))
+  }
 
-  override def removeAttribute(name: String, namespace: String, locale: Locale): Unit = ???
-
-  override def clearAttributes(): Unit = ???
-
-  override def removeAttributes(name: String): Unit = ???
-
-  override def removeAttributes(name: String, namespace: String): Unit = ???
+  private def createAndAddTable(tableName: String): MongoDBValueTable = {
+    val table: MongoDBValueTable = MongoDBValueTable(tableName, this)
+    addTable(table)
+    // TODO we should write table to MongoDB instead of changing DS timestamps
+    setLastUpdate()
+    table
+  }
 
   override def canDrop: Boolean = true
 
@@ -93,9 +103,15 @@ class MongoDBDatasource(override val name: String, private val mongoDBFactory: M
 
   override def attributes: List[Attribute] = ???
 
-  override def initialise(): Unit = mongoDBFactory.mongoClient
+  override def initialise(): Unit = {
+    // mongoDBFactory.mongoClient
+    super.initialise()
+  }
 
-  override def dispose(): Unit = mongoDBFactory.close()
+  override def dispose(): Unit = {
+    super.dispose()
+    mongoDBFactory.close()
+  }
 
   override protected def valueTableNames(): Set[String] = {
     tableCollection()
@@ -105,20 +121,23 @@ class MongoDBDatasource(override val name: String, private val mongoDBFactory: M
   }
 
   override def timestamps: Timestamps = {
-    val list: List[Timestamped] = tables.toList.::(this)
-    UnionTimestamps(list)
+    new UnionTimestamps(tables.map(_.timestamps).toList.::(dsTimestamps): _*)
   }
 
-  private class MongoDBDatasourceTimestamped extends Timestamped {
-    override def timestamps: Timestamps = new Timestamps {
-
-      val timestampsObject: DBObject = dBObject.getAs[DBObject](TIMESTAMPS_FIELD).get
-
-      override def created: Instant = timestampsObject.getAs[Instant](CREATED_FIELD).get
-
-      override def lastUpdate: Option[Instant] = timestampsObject.getAs[Instant](UPDATE_FIELD)
-    }
+  private def setLastUpdate(): Unit = {
+    dsTimestamps.update()
+    datasourceCollection().save(dBObject, WriteConcern.Acknowledged)
   }
 
-  override protected def initialiseValueTable(tableName: String): ValueTable = ???
+  override protected def initialiseValueTable(tableName: String): ValueTable = MongoDBValueTable(tableName, this)
+
+  override def addAttribute(attribute: Attribute): Unit = ???
+
+  override def removeAttribute(name: String, namespace: String, locale: Locale): Unit = ???
+
+  override def clearAttributes(): Unit = ???
+
+  override def removeAttributes(name: String): Unit = ???
+
+  override def removeAttributes(name: String, namespace: String): Unit = ???
 }

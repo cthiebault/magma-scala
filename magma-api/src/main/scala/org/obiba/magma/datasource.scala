@@ -4,6 +4,8 @@ import org.obiba.magma.attribute.AttributeWriter
 import org.obiba.magma.entity.EntityType
 import org.obiba.magma.time.Timestamped
 
+import scala.collection._
+
 trait Datasource extends Timestamped with AttributeWriter with Initialisable with Droppable with Disposable {
 
   val name: String
@@ -32,32 +34,35 @@ trait Datasource extends Timestamped with AttributeWriter with Initialisable wit
 
 abstract class AbstractDatasource extends Datasource {
 
-  private var _tables: Set[ValueTable] = Set()
+  private val _tables: mutable.LinkedHashSet[ValueTable] = mutable.LinkedHashSet()
 
-  override def tables: Set[ValueTable] = _tables
+  override def tables: Set[ValueTable] = _tables.toSet
 
-  override def getTable(tableName: String): Option[ValueTable] = tables.find(t => t.name == name)
+  override def getTable(tableName: String): Option[ValueTable] = tables.find(_.name == name)
 
   override def hasTable(tableName: String): Boolean = getTable(tableName).isDefined
 
-  override def dispose(): Unit = {}
+  override def dispose(): Unit = {
+    Disposable.dispose(tables)
+  }
 
   protected def valueTableNames(): Set[String]
 
-  protected def addTable(table: ValueTable) = _tables = _tables + table
+  protected def addTable(table: ValueTable) = _tables.add(table)
 
-  protected def removeTable(table: ValueTable) = _tables = _tables - table
+  protected def removeTable(table: ValueTable) = _tables.remove(table)
 
   protected def initialiseValueTable(tableName: String): ValueTable
 
   override def initialise(): Unit = {
     valueTableNames()
       .map(initialiseValueTable)
-      .foreach(t => {
-          Initialisable.initialise(t)
-          addTable(t)
-        }
-      )
+      .foreach(initAndAddTable)
+  }
+
+  private def initAndAddTable(table: ValueTable): Unit = {
+    Initialisable.initialise(table)
+    addTable(table)
   }
 
 }

@@ -27,7 +27,7 @@ class MongoDBDatasourceFactory(
   (implicit clock: Clock)
   extends DatasourceFactory {
 
-  override def create: Datasource = new MongoDBDatasource(name, new MongoDBFactory(buildUri.toString))
+  override def create(): MongoDBDatasource = new MongoDBDatasource(name, new MongoDBFactory(buildUri.toString))
 
   private def buildUri: URI = {
     val uriBuilder: URIBuilder = new URIBuilder(url)

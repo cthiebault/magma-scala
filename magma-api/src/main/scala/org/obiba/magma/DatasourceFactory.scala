@@ -4,6 +4,6 @@ trait DatasourceFactory {
 
   var name: String
 
-  def create: Datasource
+  def create(): Datasource
 
 }
