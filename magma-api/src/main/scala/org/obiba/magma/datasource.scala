@@ -2,6 +2,7 @@ package org.obiba.magma
 
 import org.obiba.magma.attribute.AttributeWriter
 import org.obiba.magma.entity.EntityType
+import org.obiba.magma.support.Disposables
 import org.obiba.magma.time.Timestamped
 
 import scala.collection._
