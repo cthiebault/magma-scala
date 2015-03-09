@@ -6,7 +6,7 @@ import org.obiba.magma.time.Timestamped
 
 trait Datasource extends Timestamped with AttributeWriter with Initialisable with Droppable with Disposable {
 
-  var name: String
+  val name: String
 
   def `type`: String
 
@@ -32,9 +32,32 @@ trait Datasource extends Timestamped with AttributeWriter with Initialisable wit
 
 abstract class AbstractDatasource extends Datasource {
 
+  private var _tables: Set[ValueTable] = Set()
+
+  override def tables: Set[ValueTable] = _tables
+
   override def getTable(tableName: String): Option[ValueTable] = tables.find(t => t.name == name)
 
   override def hasTable(tableName: String): Boolean = getTable(tableName).isDefined
 
   override def dispose(): Unit = {}
+
+  protected def valueTableNames(): Set[String]
+
+  protected def addTable(table: ValueTable) = _tables = _tables + table
+
+  protected def removeTable(table: ValueTable) = _tables = _tables - table
+
+  protected def initialiseValueTable(tableName: String): ValueTable
+
+  override def initialise(): Unit = {
+    valueTableNames()
+      .map(initialiseValueTable)
+      .foreach(t => {
+          Initialisable.initialise(t)
+          addTable(t)
+        }
+      )
+  }
+
 }

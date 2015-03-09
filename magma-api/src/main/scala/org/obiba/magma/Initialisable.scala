@@ -8,7 +8,7 @@ trait Initialisable {
 
 object Initialisable {
 
-  def initialise(initialisables: Traversable[Any]): Unit = {
+  def initialise(initialisables: Any*): Unit = {
     initialisables
         .filter(_.isInstanceOf[Initialisable])
         .map(_.asInstanceOf[Initialisable])

@@ -33,6 +33,11 @@
       <artifactId>httpclient</artifactId>
     </dependency>
 
+    <dependency>
+      <groupId>com.github.simplyscala</groupId>
+      <artifactId>scalatest-embedmongo_${scala.tools.version}</artifactId>
+    </dependency>
+
   </dependencies>
 
 </project>

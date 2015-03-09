@@ -8,7 +8,7 @@ import org.obiba.magma.entity.{Entity, EntityType}
 import org.obiba.magma.time.{UnionTimestamps, Timestamps}
 import org.obiba.magma.value.Value
 
-class StaticDatasource(override var name: String)(implicit clock: Clock) extends AbstractDatasource with ListAttributeWriter {
+class StaticDatasource(override val name: String)(implicit clock: Clock) extends AbstractDatasource with ListAttributeWriter {
 
   private var _tables: Map[String, ValueTable] = Map()
 
@@ -86,5 +86,8 @@ class StaticDatasource(override var name: String)(implicit clock: Clock) extends
 
   override def timestamps: Timestamps = UnionTimestamps(tables)
 
+  override protected def valueTableNames(): Set[String] = tables.map(_.name)
+
+  override protected def initialiseValueTable(tableName: String): ValueTable = ???
 }
 

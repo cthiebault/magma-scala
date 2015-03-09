@@ -51,7 +51,7 @@ class StaticValueTableSpec extends UnitSpec {
     table.variableCount should be(1)
     table.variables should have size 1
     table.timestamps.created should not be null
-    table.timestamps.lastUpdate should be(null)
+    table.timestamps.lastUpdate should be('empty)
 
     val variable = table.getVariable("variable1").get
     variable.name should be("variable1")

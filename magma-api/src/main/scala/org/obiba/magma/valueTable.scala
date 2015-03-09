@@ -7,7 +7,7 @@ import org.obiba.magma.value.Value
 import scala.collection.SortedSet
 import scala.collection.immutable.ListMap
 
-trait ValueTable extends Droppable with Timestamped {
+trait ValueTable extends Droppable with Timestamped with Initialisable {
 
   var name: String
 
