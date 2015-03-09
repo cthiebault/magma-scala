@@ -1,18 +1,23 @@
+
 package org.obiba.magma.datasource.mongodb
 
-import java.time.{Clock, LocalDateTime}
+import java.time.{Clock, Instant, LocalDateTime}
 import java.util.Locale
 
+import com.mongodb.casbah._
 import com.mongodb.casbah.commons.Imports._
 import com.mongodb.casbah.commons.MongoDBObject
-import com.mongodb.casbah.{Imports, MongoCollection, WriteConcern}
 import org.obiba.magma.attribute.Attribute
 import org.obiba.magma.entity.EntityType
-import org.obiba.magma.time.Timestamps
+import org.obiba.magma.time.{Timestamped, Timestamps, UnionTimestamps}
 import org.obiba.magma.{AbstractDatasource, ValueTable, ValueTableWriter}
 
-class MongoDBDatasource(override var name: String, private val mongoDBFactory: MongoDBFactory)(implicit clock: Clock)
+class MongoDBDatasource(private val mongoDBFactory: MongoDBFactory)(implicit clock: Clock)
   extends AbstractDatasource {
+
+  private val CREATED_FIELD = "created"
+  private val UPDATE_FIELD = "update"
+  private val TIMESTAMPS_FIELD = "_timestamps"
 
   private lazy val dBObject: DBObject = {
     datasourceCollection()
@@ -23,7 +28,7 @@ class MongoDBDatasource(override var name: String, private val mongoDBFactory: M
   private def insert(): DBObject = {
     val mongoDBObject: DBObject = MongoDBObject(
       "name" -> name,
-      "_timestamps" -> createTimestampsObject()
+      TIMESTAMPS_FIELD -> createTimestampsObject()
     )
     //TODO ensure index on name exists
     datasourceCollection().insert(mongoDBObject, WriteConcern.Acknowledged)
@@ -38,10 +43,16 @@ class MongoDBDatasource(override var name: String, private val mongoDBFactory: M
 
   private def createTimestampsObject(): DBObject = {
     val now: LocalDateTime = LocalDateTime.now(clock)
-    MongoDBObject("created" -> now, "update" -> now)
+    MongoDBObject(CREATED_FIELD -> now)
   }
 
   override def `type`: String = "mongodb"
+
+  override def name(): String = dBObject.getAs[String]("name").orNull
+
+  override def name_=(name: String): Unit = {
+    dBObject ++
+  }
 
   override def canDropTable(tableName: String): Boolean = ???
 
@@ -77,5 +88,20 @@ class MongoDBDatasource(override var name: String, private val mongoDBFactory: M
 
   override def dispose(): Unit = mongoDBFactory.close()
 
-  override def timestamps: Timestamps = ???
+  override def timestamps: Timestamps = {
+    val list: List[Timestamped] = tables.toList.::(this)
+    UnionTimestamps(list)
+  }
+
+  private class MongoDBDatasourceTimestamped extends Timestamped {
+    override def timestamps: Timestamps = new Timestamps {
+
+      val timestampsObject: DBObject = dBObject.getAs[DBObject](TIMESTAMPS_FIELD).get
+
+      override def created: Instant = timestampsObject.getAs[Instant](CREATED_FIELD).get
+
+      override def lastUpdate: Option[Instant] = timestampsObject.getAs[Instant](UPDATE_FIELD)
+    }
+  }
+
 }

@@ -132,8 +132,8 @@ class StaticValueTableSpec extends UnitSpec {
 
     val valueSetWriter = tableWriter.writeValueSet(ParticipantEntityBean("1"))
     valueSetWriter.writeValue(variable, "value 1".toTextValue)
-    val lastUpdate: Instant = table.timestamps.lastUpdate
-    lastUpdate should not be null
+    val lastUpdate: Option[Instant] = table.timestamps.lastUpdate
+    lastUpdate should not be('empty)
 
     Thread sleep 1000
 
@@ -143,7 +143,7 @@ class StaticValueTableSpec extends UnitSpec {
     table.entities should be(empty)
     table.hasEntity(ParticipantEntityBean("1")) should be(false)
     table.hasValueSet(ParticipantEntityBean("1")) should be(false)
-    table.timestamps.lastUpdate should be > lastUpdate
+    table.timestamps.lastUpdate.get should be > lastUpdate.get
   }
 
   it can "have vectorSource" in {

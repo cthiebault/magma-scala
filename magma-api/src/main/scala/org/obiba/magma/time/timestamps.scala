@@ -6,14 +6,14 @@ trait Timestamps {
 
   def created: Instant
 
-  def lastUpdate: Instant
+  def lastUpdate: Option[Instant]
 
 }
 
 case class TimestampsBean(created: Instant = Instant.now(), private var _lastUpdate: Instant = null)(implicit clock: Clock)
   extends Timestamps {
 
-  override def lastUpdate: Instant = _lastUpdate
+  override def lastUpdate: Option[Instant] = if (_lastUpdate == null) None else Some(_lastUpdate)
 
   def touch(): Unit = _lastUpdate = clock.instant()
 }
