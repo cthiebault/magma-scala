@@ -2,7 +2,6 @@ package org.obiba.magma
 
 import org.obiba.magma.attribute.AttributeWriter
 import org.obiba.magma.entity.EntityType
-import org.obiba.magma.support.Disposables
 import org.obiba.magma.time.Timestamped
 
 import scala.collection._
@@ -39,13 +38,11 @@ abstract class AbstractDatasource extends Datasource {
 
   override def tables: Set[ValueTable] = _tables.toSet
 
-  override def getTable(tableName: String): Option[ValueTable] = tables.find(_.name == name)
+  override def getTable(tableName: String): Option[ValueTable] = _tables.find(_.name == tableName)
 
   override def hasTable(tableName: String): Boolean = getTable(tableName).isDefined
 
-  override def dispose(): Unit = {
-    Disposable.dispose(tables)
-  }
+  override def dispose(): Unit = Disposable.dispose(tables)
 
   protected def valueTableNames(): Set[String]
 

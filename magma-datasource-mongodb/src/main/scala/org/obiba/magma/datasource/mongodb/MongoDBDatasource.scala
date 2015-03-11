@@ -13,16 +13,16 @@ import org.obiba.magma.logging.Slf4jLogging
 import org.obiba.magma.time.{Timestamps, UnionTimestamps}
 import org.obiba.magma.{ValueTable, AbstractDatasource, ValueTableWriter}
 
-class MongoDBDatasource(override val name: String, protected[mongodb] val mongoDBFactory: MongoDBFactory)(implicit clock: Clock)
+class MongoDBDatasource(override val name: String, private[mongodb] val mongoDBFactory: MongoDBFactory)(implicit clock: Clock)
   extends AbstractDatasource with Slf4jLogging {
 
-  private[mongodb] val DATASOURCE_COLLECTION = "datasource"
+  private val DATASOURCE_COLLECTION = "datasource"
   private val TABLE_COLLECTION = "value_table"
 
   private val NAME_FIELD = "name"
   private val DATASOURCE_FIELD = "datasource"
 
-  protected[mongodb] lazy val dBObject: DBObject = {
+  private[mongodb] lazy val dBObject: DBObject = {
     val obj = datasourceCollection()
       .findOne(MongoDBObject(NAME_FIELD -> name))
       .getOrElse(insert())
@@ -83,14 +83,15 @@ class MongoDBDatasource(override val name: String, protected[mongodb] val mongoD
   }
 
   override def createWriter(tableName: String, entityType: EntityType): ValueTableWriter = {
-    new MongoDBValueTableWriter(getTable(tableName).getOrElse(createAndAddTable(tableName)))
+    new MongoDBValueTableWriter(getTable(tableName).getOrElse(createAndAddTable(tableName, entityType)))
   }
 
-  private def createAndAddTable(tableName: String): MongoDBValueTable = {
-    val table: MongoDBValueTable = MongoDBValueTable(tableName, this)
+  private def createAndAddTable(tableName: String, entityType: EntityType): MongoDBValueTable = {
+    val table: MongoDBValueTable = new MongoDBValueTable(tableName, this, entityType)
     addTable(table)
     // TODO we should write table to MongoDB instead of changing DS timestamps
     setLastUpdate()
+    table.dBObject
     table
   }
 
@@ -121,15 +122,15 @@ class MongoDBDatasource(override val name: String, protected[mongodb] val mongoD
   }
 
   override def timestamps: Timestamps = {
-    new UnionTimestamps(tables.map(_.timestamps).toList.::(dsTimestamps): _*)
+    new UnionTimestamps(tables.map(_.timestamps).toList.::(dsTimestamps()): _*)
   }
 
   private def setLastUpdate(): Unit = {
-    dsTimestamps.update()
+    dsTimestamps().update()
     datasourceCollection().save(dBObject, WriteConcern.Acknowledged)
   }
 
-  override protected def initialiseValueTable(tableName: String): ValueTable = MongoDBValueTable(tableName, this)
+  override protected def initialiseValueTable(tableName: String): ValueTable = new MongoDBValueTable(tableName, this)
 
   override def addAttribute(attribute: Attribute): Unit = ???
 

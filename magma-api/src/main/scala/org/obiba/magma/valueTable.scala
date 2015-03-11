@@ -63,10 +63,11 @@ object ValueTableReference {
   }
 }
 
-abstract class AbstractValueTable(private val entityProvider: EntityProvider)
-  extends ValueTable with Initialisable {
+abstract class AbstractValueTable extends ValueTable with Initialisable {
 
   protected var variableSources: Map[String, VariableValueSource] = ListMap()
+
+  protected def entityProvider: EntityProvider
 
   override def isForEntityType(entityType: String): Boolean = entityProvider.isForEntityType(EntityType(entityType))
 

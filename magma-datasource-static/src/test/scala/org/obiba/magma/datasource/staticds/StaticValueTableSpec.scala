@@ -1,6 +1,6 @@
 package org.obiba.magma.datasource.staticds
 
-import java.time.Instant
+import java.time.{Clock, Instant}
 
 import org.obiba.magma._
 import org.obiba.magma.entity._
@@ -123,6 +123,8 @@ class StaticValueTableSpec extends UnitSpec {
   }
 
   it can "remove valueSets" in {
+
+    implicit val clock: Clock = Clock.systemUTC()
 
     val ds = new StaticDatasource("test")
     val tableWriter = ds.createWriter("table", EntityType.Participant)

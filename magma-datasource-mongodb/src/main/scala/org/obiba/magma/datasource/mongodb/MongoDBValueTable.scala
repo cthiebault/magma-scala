@@ -5,14 +5,14 @@ import java.time.Clock
 import com.mongodb.casbah.commons.Imports._
 import com.mongodb.casbah.commons.MongoDBObject
 import com.mongodb.casbah.{Imports, MongoCollection, WriteConcern}
-import org.obiba.magma.entity.{Entity, EntityProvider, EntityType}
-import org.obiba.magma.time.Timestamps
+import org.obiba.magma.entity._
 import org.obiba.magma.{AbstractValueTable, ValueSet}
 
 class MongoDBValueTable(
   var name: String,
   val datasource: MongoDBDatasource,
-  private var entityProvider: EntityProvider)(implicit clock: Clock) extends AbstractValueTable(entityProvider) {
+  entityType: EntityType = null.asInstanceOf[EntityType])(implicit clock: Clock)
+  extends AbstractValueTable {
 
   private val DATASOURCE_FIELD = "datasource"
   private val NAME_FIELD = "name"
@@ -21,7 +21,7 @@ class MongoDBValueTable(
   private val VALUE_SET_SUFFIX = "_value_set"
   private val VARIABLE_SUFFIX = "_variable"
 
-  private val dBObject: DBObject = {
+  private[mongodb] lazy val dBObject: DBObject = {
     datasource.tableCollection()
       .findOne(MongoDBObject(DATASOURCE_FIELD -> datasource.dBObject._id, NAME_FIELD -> name))
       .getOrElse(insert())
@@ -37,6 +37,8 @@ class MongoDBValueTable(
     datasource.tableCollection().insert(mongoDBObject, WriteConcern.Acknowledged)
     mongoDBObject
   }
+
+  override protected def entityProvider: EntityProvider = new MongoDBEntityProvider(this, entityType)
 
   override def getValueSet(entity: Entity): Option[ValueSet] = ???
 
@@ -76,15 +78,5 @@ class MongoDBValueTable(
     datasource.tableCollection().save(dBObject, WriteConcern.Acknowledged)
   }
 
-
 }
 
-object MongoDBValueTable {
-
-  def apply(name: String, datasource: MongoDBDatasource)(implicit clock: Clock): MongoDBValueTable = {
-    val table: MongoDBValueTable = new MongoDBValueTable(name, datasource, null)
-    table.entityProvider = new MongoDBEntityProvider(table, null.asInstanceOf[EntityType])
-    table
-  }
-
-}

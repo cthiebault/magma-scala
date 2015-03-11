@@ -1,6 +1,6 @@
 package org.obiba.magma
 
-import java.time.Clock
+import java.time.{ZoneId, Instant, Clock}
 
 import com.typesafe.scalalogging.Logger
 import org.scalatest._
@@ -14,7 +14,6 @@ abstract class UnitSpec extends FlatSpec
 
   val logger = Logger(LoggerFactory.getLogger(getClass))
 
-  //TODO replace by FixedClock
-  implicit val clock: Clock = Clock.systemUTC
+  implicit val clock: Clock = Clock.fixed(Instant.now, ZoneId.systemDefault)
 
 }

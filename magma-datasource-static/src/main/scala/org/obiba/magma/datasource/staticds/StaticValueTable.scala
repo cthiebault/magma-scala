@@ -13,7 +13,7 @@ class StaticValueTable(
   var name: String,
   val datasource: Datasource,
   override val entityType: EntityType,
-  private val entityProvider: EntityProvider)(implicit clock: Clock) extends AbstractValueTable(entityProvider) {
+  protected val entityProvider: EntityProvider)(implicit clock: Clock) extends AbstractValueTable {
 
   // FIXME entities & EntityProvider.entities are disconnected!
 
